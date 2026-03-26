@@ -33,7 +33,7 @@ html,body{height:100%;overflow:hidden;font-family:system-ui,sans-serif;font-size
 
 /* EDITOR */
 #panel-editor h3{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:12px;align-self:flex-start}
-#fields-list{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;width:100%;max-width:100%;}
+#fields-list{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;width:100%;max-width:720px}
 .field-card{background:#fff;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden}
 .field-card.w-full{grid-column:span 6}
 .field-card.w-half{grid-column:span 3}
@@ -257,11 +257,12 @@ function switchTab(t){
 }
 
 function initDefaults(){
-  [{type:'text',label:'First Name',id:'FirstName',width:'half',required:true},
-   {type:'text',label:'Last Name', id:'LastName',  width:'half',required:true},
-   {type:'tel', label:'Phone',     id:'Phone',     width:'half',required:true},
-   {type:'email',label:'Email',    id:'EmailAddress',width:'half',required:true},
-   {type:'message',label:'How can we help you?',id:'Message',width:'full',required:true}
+  [{type:'text',  label:'First Name', id:'FirstName',    width:'half', required:true},
+   {type:'text',  label:'Last Name',  id:'LastName',     width:'half', required:true},
+   {type:'tel',   label:'Phone',      id:'Phone',        width:'half', required:true},
+   {type:'email', label:'Email',      id:'EmailAddress', width:'half', required:true},
+   {type:'address',label:'Address',   id:'Address',      width:'full', required:false},
+   {type:'message',label:'How can we help you?', id:'Message', width:'full', required:true}
   ].forEach(f=>fields.push({...f,_id:uid()}));
   render();
 }
@@ -526,6 +527,18 @@ Consent is not a condition of purchase. Msg &amp; data rates may apply. Msg freq
 \t<link href="/common/make/css-mobile/tools/flex-gas-sml.css" rel="stylesheet" type="text/css" p-place="true"/>
 \t<link href="/includes/forms.css" rel="stylesheet" type="text/css" p-place="true"/>
 \t<noscript type="text/javascript" async="async" src="/common/usc/p/phone-format.js" p-place="true"></noscript>
+\t<if field="{F:lower:Sub:LeadIsCalled}" equals="customer">
+\t\t<noscript type="text/javascript" p-place="true">
+\t\t    var @@ElementID@@frm = document.getElementById( '@@ElementID@@Form' );
+\t\t    require2( '/common/usc/p/utils.js', function() {
+\t\t    \tUSC.onVisible( @@ElementID@@frm, -0.5, function() {
+\t\t    \trequire2( '/common/usc/p/google-address-lookup.js', function() {
+\t\t    \t        USC.googleAddressLookup( @@ElementID@@frm )
+\t\t    \t    });
+\t\t    \t});
+\t\t    });
+\t\t</noscript>
+\t</if>
 \t<fieldset>
 \t\t<ul class="@@ListClassList|flx-at-700-grd-sml@@">
 ${fieldLines}
