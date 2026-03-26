@@ -6,7 +6,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;overflow:hidden;font-family:system-ui,sans-serif;font-size:13px;background:#f0f0f0}
-/* Top */
+
 #app{display:grid;grid-template-columns:200px 1fr;grid-template-rows:100%;height:100vh}
 
 /* SIDEBAR */
@@ -33,8 +33,11 @@ html,body{height:100%;overflow:hidden;font-family:system-ui,sans-serif;font-size
 
 /* EDITOR */
 #panel-editor h3{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:12px;align-self:flex-start}
-#fields-list{display:flex;flex-direction:column;gap:8px;width:100%;max-width:720px}
+#fields-list{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;width:100%;max-width:720px}
 .field-card{background:#fff;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden}
+.field-card.w-full{grid-column:span 6}
+.field-card.w-half{grid-column:span 3}
+.field-card.w-third{grid-column:span 2}
 .field-card.dragging{opacity:.4}
 .field-card.drag-over{border-color:#7c3aed;box-shadow:0 0 0 2px #7c3aed33}
 .card-header{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#fafafa;border-bottom:1px solid #f0f0f0}
@@ -277,6 +280,10 @@ function removeField(fid){fields=fields.filter(f=>f._id!==fid);render()}
 function updateField(fid,key,val){
   const f=fields.find(x=>x._id===fid);
   if(f) f[key]=val;
+  if(key==='width'){
+    const card=document.querySelector(`[data-fid="${fid}"]`);
+    if(card) card.className=`field-card w-${val}`;
+  }
   renderCode();checkDuplicateIds();
 }
 
@@ -310,7 +317,7 @@ function render(){
   list.innerHTML='';
   fields.forEach(f=>{
     const card=document.createElement('div');
-    card.className='field-card';card.draggable=true;card.dataset.fid=f._id;
+    card.className=`field-card w-${f.width||'full'}`;card.draggable=true;card.dataset.fid=f._id;
     card.addEventListener('dragstart',e=>onDragStart(e,f._id));
     card.addEventListener('dragend',onDragEnd);
     card.addEventListener('dragover',e=>onDragOver(e,f._id));
