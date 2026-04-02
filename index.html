@@ -33,7 +33,7 @@ html,body{height:100%;overflow:hidden;font-family:system-ui,sans-serif;font-size
 
 /* EDITOR */
 #panel-editor h3{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:12px;align-self:flex-start}
-#fields-list{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;width:100%;max-width:100%}
+#fields-list{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;width:100%;max-width:720px}
 .field-card{background:#fff;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden}
 .field-card.w-full{grid-column:span 6}
 .field-card.w-half{grid-column:span 3}
@@ -129,6 +129,9 @@ input:checked+.slider-t:before{transform:translateX(14px)}
       </button>
       <button class="add-btn" onclick="addField('resume')">
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 1H3a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V6L9 1z"/><path d="M9 1v5h5"/></svg>File Upload
+      </button>
+      <button class="add-btn" onclick="addField('divider')">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h12M2 4h12M2 12h12"/></svg>Section Divider
       </button>
       <button class="add-btn" id="btn-captcha" onclick="addField('captcha')">
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1l1.5 2.5L12 4l-2 2 .5 2.5L8 7.5 5.5 8.5 6 6 4 4l2.5-.5L8 1z"/><path d="M3 10l1 4M13 10l-1 4M5 14h6"/></svg>Captcha
@@ -242,6 +245,7 @@ const defaults = {
   checkbox: {label:'Best Time To Reach You', id:'BestTimeToReachYou', width:'full', required:true, opts:['Morning','Afternoon','Evening']},
   radio:    {label:'Family In Need or Veteran?', id:'InNeedOrVeteran', width:'full', required:true, opts:['Family In Need','Veteran']},
   select:   {label:'Select label text', id:'NewSelectField', width:'full', required:true, opts:['one','two','three']},
+  divider:  {label:'New Form Section', id:'', width:'full', required:false},
   captcha:  {label:'Captcha',   id:'Captcha',             width:'full', required:false},
   date:     {label:'What date would you be available to start?', id:'ServiceDateRequested', width:'full', required:true},
   resume:   {label:'Upload a Resume/CV/Document', id:'Resume', width:'full', required:false},
@@ -326,6 +330,7 @@ function render(){
     const hasOpts=f.type==='checkbox'||f.type==='radio'||f.type==='select';
     const isState=f.type==='state';
     const isCaptcha=f.type==='captcha';
+    const isDivider=f.type==='divider';
     let optsHtml='';
     if(hasOpts){
       const rows=(f.opts||[]).map((o,i)=>`<div class="opt-row"><input value="${esc(o)}" oninput="updateOpt('${f._id}',${i},this.value)"><button class="btn-small" onclick="removeOpt('${f._id}',${i})" style="color:#dc2626">✕</button></div>`).join('');
@@ -333,6 +338,8 @@ function render(){
     }
     const bodyHtml=isCaptcha
       ? `<div class="card-body"><span style="font-size:11px;color:#888">Fixed field — no editable properties.</span></div>`
+      : isDivider
+      ? `<div class="card-body"><div class="prop-row"><span class="prop-label">Text</span><input class="prop-input" value="${esc(f.label)}" oninput="updateField('${f._id}','label',this.value)"></div></div>`
       : `<div class="card-body">
         <div class="prop-row">
           <span class="prop-label">Label</span>
@@ -403,6 +410,8 @@ function buildFieldCode(f){
       const items=(f.opts||[]).map(o=>`\t\t\t\t\t<option value="${o}">${o}</option>`).join('\n');
       return `\t\t\t<li class="sel ${w}">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label for="{ClientID:${id}}">${label}</label>\n\t\t\t\t\t<select${reqAttr} id="${id}" icoral="Coral.Controls.Form.Select">\n\t\t\t\t\t\t<option value=""></option>\n${items}\n\t\t\t\t\t</select>\n\t\t\t\t\t<svg role="presentation" data-use="arrow_down.24"></svg>\n\t\t\t\t\t<div class="validation" for="{ClientID:${id}}" data-type="valueMissing">\n\t\t\t\t\t\tPlease make a selection.\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</li>`;
     }
+    case 'divider':
+      return `\t\t\t<h2 class="form-divider ta_ mrg_tp-30 mrg_bt-30">${label}</h2>`;
     case 'captcha':
       return `\t\t\t<li class="captcha full">
 \t\t\t\t<div class="verify-cont">
@@ -436,6 +445,8 @@ function checkDuplicateIds(){
 }
 
 function renderCode(){
+  const hasDivider=fields.some(f=>f.type==='divider');
+  const dividerStyles=hasDivider?`\n<style>\n.form-divider {\n   width: 100%;\n   display: block;\n}\n</style>`:'';
   const hasCaptcha=fields.some(f=>f.type==='captcha');
   const captchaStyles=hasCaptcha?`\n<style>
 \tspan.field-cap {
@@ -552,7 +563,7 @@ ${addressBlock}\t<input id="FFD6" type="hidden" icoral="Coral.Controls.Form.Inpu
 \t\t<app-chunk name="ClassList">@@ButtonClassList@@</app-chunk>
 \t\t<app-chunk name="MarginTop">@@ButtonMarginTop|mrg_tp-40@@</app-chunk>
 \t</app-component>
-${needsStyles?STYLES:''}${captchaStyles}
+${needsStyles?STYLES:''}${dividerStyles}${captchaStyles}
 </div>`;
 
   document.getElementById('code-out').textContent=code;
