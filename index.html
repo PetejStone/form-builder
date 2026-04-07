@@ -9,10 +9,24 @@ html,body{height:100%;overflow:hidden;font-family:system-ui,sans-serif;font-size
 #app{display:grid;grid-template-columns:200px 1fr;grid-template-rows:100%;height:100vh}
 #sidebar{background:#1e1e2e;color:#cdd6f4;display:flex;flex-direction:column;overflow:hidden;grid-column:1}
 #sidebar h2{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6c7086;padding:14px 14px 8px;flex-shrink:0}
-#field-btns{padding:0 10px 10px;display:flex;flex-direction:column;gap:5px;overflow-y:auto}
+#field-btns{padding:0 10px 10px;display:flex;flex-direction:column;gap:5px;overflow-y:auto;flex:1}
 .add-btn{background:#313244;border:none;color:#cdd6f4;padding:7px 10px;border-radius:6px;cursor:pointer;text-align:left;font-size:12px;display:flex;align-items:center;gap:7px;transition:background .15s}
 .add-btn:hover{background:#45475a}
 .add-btn svg{width:14px;height:14px;flex-shrink:0;opacity:.6}
+/* Saved forms section */
+#saved-section{flex-shrink:0;border-top:1px solid #313244;padding:10px}
+#saved-section h2{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6c7086;margin-bottom:8px}
+#saved-list{display:flex;flex-direction:column;gap:4px;max-height:180px;overflow-y:auto}
+.saved-item{display:flex;align-items:center;gap:4px;background:#313244;border-radius:6px;padding:5px 8px;cursor:pointer;transition:background .15s}
+.saved-item:hover{background:#3d3f52}
+.saved-item.active-form{background:#45475a;outline:1px solid #7c3aed33}
+.saved-item-name{flex:1;font-size:11px;color:#cdd6f4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.saved-item-del{background:none;border:none;color:#6c7086;cursor:pointer;font-size:13px;line-height:1;padding:1px 3px;border-radius:3px;flex-shrink:0}
+.saved-item-del:hover{color:#f38ba8;background:#1e1e2e}
+#new-form-btn{width:100%;background:#313244;border:1px dashed #45475a;color:#6c7086;padding:6px;border-radius:6px;cursor:pointer;font-size:11px;margin-top:6px;transition:background .15s}
+#new-form-btn:hover{background:#45475a;color:#cdd6f4}
+#saved-list::-webkit-scrollbar{width:4px}
+#saved-list::-webkit-scrollbar-thumb{background:#44475a;border-radius:3px}
 #main{grid-column:2;display:flex;flex-direction:column;overflow:hidden}
 #tabs{display:flex;background:#fff;border-bottom:1px solid #e0e0e0;flex-shrink:0}
 .tab{padding:10px 20px;font-size:12px;font-weight:500;color:#888;cursor:pointer;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;user-select:none}
@@ -21,7 +35,9 @@ html,body{height:100%;overflow:hidden;font-family:system-ui,sans-serif;font-size
 #panels{flex:1;overflow:hidden;position:relative}
 .panel{position:absolute;inset:0;overflow-y:auto;display:none;padding:20px}
 .panel.active{display:flex;flex-direction:column;align-items:center}
-#panel-editor h3{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:12px;align-self:flex-start}
+#panel-editor h3{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:4px;align-self:flex-start}
+#save-status{font-size:10px;color:#7c3aed;height:14px;margin-bottom:6px;align-self:flex-start;opacity:0;transition:opacity .3s}
+#save-status.visible{opacity:1}
 #fields-list{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;width:100%;max-width:100%}
 .field-card{background:#fff;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden}
 .field-card.w-full{grid-column:span 6}
@@ -60,13 +76,13 @@ input:checked+.slider-t:before{transform:translateX(14px)}
 .btn-small.add:hover{background:#f5f0ff}
 #panel-code{background:#1e1e2e;padding:0!important}
 #panel-code.active{display:flex;flex-direction:column;align-items:stretch}
-#code-toolbar{padding:10px 14px;flex-shrink:0;border-bottom:1px solid #313244}
+#code-toolbar{padding:10px 14px;flex-shrink:0;border-bottom:1px solid #313244;display:flex;gap:8px;align-items:center}
 #copy-btn{background:#313244;border:none;color:#cdd6f4;padding:6px 16px;border-radius:6px;cursor:pointer;font-size:12px;transition:background .15s}
 #copy-btn:hover{background:#45475a}
 #copy-btn.copied{background:#1e8a4a;color:#fff}
 #code-out{flex:1;overflow:auto;padding:12px 16px;font-family:monospace;font-size:11.5px;line-height:1.6;color:#cdd6f4;white-space:pre;tab-size:2}
 #dup-flag{display:none;background:#dc2626;color:#fff;font-size:12px;padding:8px 16px;flex-shrink:0;align-items:center;gap:8px}
-/* Preview panel */
+/* Preview */
 #panel-preview{background:#f9f9f9;padding:20px}
 #panel-preview.active{display:flex;flex-direction:column;align-items:center}
 #preview-form fieldset{border:none;padding:0;margin:0}
@@ -77,22 +93,14 @@ input:checked+.slider-t:before{transform:translateX(14px)}
 #preview-form li.third{width:calc(33.333% - 8px)!important}
 #preview-form label{display:block;font-size:13px;text-align:left;margin-bottom:2px;color:#333;font-weight:500}
 #preview-form .input-text{width:100%;font-size:100%;text-align:left;padding:.4rem .5rem .3rem;border:1px solid #ccc;border-radius:4px;background:#fff;position:relative;box-sizing:border-box}
-#preview-form input[type=text],
-#preview-form input[type=tel],
-#preview-form input[type=email],
-#preview-form input[type=date],
-#preview-form input[type=file],
-#preview-form textarea,
-#preview-form select{border:0;width:100%;outline:none;color:#aaa;font-size:13px;font-family:inherit;background-color:transparent;display:block;padding:4px 0;margin-top:2px}
+#preview-form input[type=text],#preview-form input[type=tel],#preview-form input[type=email],#preview-form input[type=date],#preview-form input[type=file],#preview-form textarea,#preview-form select{border:0;width:100%;outline:none;color:#aaa;font-size:13px;font-family:inherit;background-color:transparent;display:block;padding:4px 0;margin-top:2px}
 #preview-form textarea{resize:none;min-height:4.5rem}
 #preview-form select{appearance:none;padding-right:1.5rem;cursor:pointer}
 #preview-form .sel{position:relative}
 #preview-form .sel .input-text svg{position:absolute;right:.5rem;top:50%;transform:translateY(-50%);pointer-events:none;width:14px;height:14px;fill:#555}
-#preview-form .optional-checkbox-label,
-#preview-form .optional-radio-label{font-size:13px;font-weight:600;color:#333;margin-bottom:6px;display:block}
+#preview-form .optional-checkbox-label,#preview-form .optional-radio-label{font-size:13px;font-weight:600;color:#333;margin-bottom:6px;display:block}
 #preview-form .input-mark{display:flex;align-items:center;gap:8px;padding:3px 0}
-#preview-form .input-mark input[type=checkbox],
-#preview-form .input-mark input[type=radio]{width:15px;height:15px;flex-shrink:0;margin:0}
+#preview-form .input-mark input[type=checkbox],#preview-form .input-mark input[type=radio]{width:15px;height:15px;flex-shrink:0;margin:0}
 #preview-form .input-mark label{font-size:13px;font-weight:400;margin:0;color:#333}
 #preview-form .inp-mrk small{font-size:11px;color:#888;display:block;line-height:1.5;margin-top:4px}
 #preview-form .inp-mrk small a{color:#5C8AC7}
@@ -102,6 +110,21 @@ input:checked+.slider-t:before{transform:translateX(14px)}
 #preview-form .upload-more-row{display:flex;align-items:center;gap:6px;font-size:12px;color:#555;margin-top:2px}
 #preview-form .upload-more-row input{width:14px;height:14px;flex-shrink:0}
 #preview-form .preview-submit{margin-top:20px;background:#444;color:#fff;border:none;padding:10px 28px;border-radius:4px;font-size:14px;cursor:default;opacity:.8;align-self:flex-start}
+/* Modal overlay */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:1000}
+.modal-box{background:#fff;border-radius:10px;padding:24px;width:320px;box-shadow:0 8px 32px rgba(0,0,0,.2)}
+.modal-box h3{font-size:15px;font-weight:600;margin-bottom:8px;color:#222}
+.modal-box p{font-size:13px;color:#555;margin-bottom:16px;line-height:1.5}
+.modal-box input{width:100%;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:13px;margin-bottom:16px;outline:none}
+.modal-box input:focus{border-color:#7c3aed}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end}
+.modal-btns button{border:none;padding:7px 16px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:500}
+.btn-primary{background:#7c3aed;color:#fff}
+.btn-primary:hover{background:#6d28d9}
+.btn-cancel{background:#f0f0f0;color:#555}
+.btn-cancel:hover{background:#e0e0e0}
+.btn-danger{background:#dc2626;color:#fff}
+.btn-danger:hover{background:#b91c1c}
 #field-btns::-webkit-scrollbar,#code-out::-webkit-scrollbar,.panel::-webkit-scrollbar{width:5px}
 #field-btns::-webkit-scrollbar-thumb,#code-out::-webkit-scrollbar-thumb,.panel::-webkit-scrollbar-thumb{background:#44475a;border-radius:3px}
 #panel-editor::-webkit-scrollbar-thumb,#panel-preview::-webkit-scrollbar-thumb{background:#ccc}
@@ -128,6 +151,11 @@ input:checked+.slider-t:before{transform:translateX(14px)}
       <button class="add-btn" id="btn-multifile" onclick="addField('multifile')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h6l3 3v9H4V2z"/><path d="M10 2v3h3"/><path d="M4 8h5M4 11h3"/></svg>Multi File Upload</button>
       <button class="add-btn" id="btn-captcha" onclick="addField('captcha')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1l1.5 2.5L12 4l-2 2 .5 2.5L8 7.5 5.5 8.5 6 6 4 4l2.5-.5L8 1z"/><path d="M3 10l1 4M13 10l-1 4M5 14h6"/></svg>Captcha</button>
     </div>
+    <div id="saved-section">
+      <h2>Saved Forms</h2>
+      <div id="saved-list"></div>
+      <button id="new-form-btn" onclick="promptNewForm()">+ New Form</button>
+    </div>
   </div>
 
   <div id="main">
@@ -138,11 +166,15 @@ input:checked+.slider-t:before{transform:translateX(14px)}
     </div>
     <div id="panels">
       <div class="panel active" id="panel-editor">
+        <div id="save-status"></div>
         <h3>Form Fields</h3>
         <div id="fields-list"></div>
       </div>
       <div class="panel" id="panel-code">
-        <div id="code-toolbar"><button id="copy-btn" onclick="copyCode()">Copy</button></div>
+        <div id="code-toolbar">
+          <button id="copy-btn" onclick="copyCode()">Copy</button>
+          <button onclick="saveCurrentForm(true)" style="background:#313244;border:none;color:#cdd6f4;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px;">💾 Save</button>
+        </div>
         <div id="code-out"></div>
         <div id="dup-flag">
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="8" r="7"/><path d="M8 5v4M8 11v.5"/></svg>
@@ -162,6 +194,31 @@ input:checked+.slider-t:before{transform:translateX(14px)}
     <div id="dup-flag" style="display:none;background:#dc2626;color:#fff;font-size:12px;padding:8px 16px;flex-shrink:0;align-items:center;gap:8px">
       <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="8" r="7"/><path d="M8 5v4M8 11v.5"/></svg>
       <span id="dup-msg"></span>
+    </div>
+  </div>
+</div>
+
+<!-- Name modal -->
+<div class="modal-overlay" id="modal-name" style="display:none">
+  <div class="modal-box">
+    <h3>Name your form</h3>
+    <p>Give this form a name so you can find it later.</p>
+    <input id="modal-name-input" type="text" placeholder="e.g. Contact Form, Job Application..." maxlength="60">
+    <div class="modal-btns">
+      <button class="btn-cancel" id="modal-name-cancel" style="display:none" onclick="closeNameModal()">Cancel</button>
+      <button class="btn-primary" onclick="confirmName()">Create Form</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete confirm modal -->
+<div class="modal-overlay" id="modal-delete" style="display:none">
+  <div class="modal-box">
+    <h3>Delete form?</h3>
+    <p id="modal-delete-msg">Are you sure you want to delete this form? This cannot be undone.</p>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeDeleteModal()">Cancel</button>
+      <button class="btn-danger" onclick="confirmDelete()">Delete</button>
     </div>
   </div>
 </div>
@@ -230,6 +287,20 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 \t</style>`;
 
 let fields=[],dragSrc=null;
+let currentFormName='';
+let saveStatusTimer=null;
+let pendingDeleteName='';
+
+const LS_PREFIX='formbuilder_form_';
+const LS_INDEX='formbuilder_index';
+
+// Safe localStorage wrapper — falls back to in-memory if sandboxed
+const memStore={};
+const storage={
+  get(k){try{return localStorage.getItem(k)}catch{return memStore[k]??null}},
+  set(k,v){try{localStorage.setItem(k,v)}catch{memStore[k]=v}},
+  remove(k){try{localStorage.removeItem(k)}catch{delete memStore[k]}}
+};
 
 const defaults={
   text:     {label:'First Name',     id:'FirstName',         width:'half',required:true},
@@ -251,6 +322,148 @@ const defaults={
 
 function uid(){return Math.random().toString(36).slice(2,8)}
 
+// ── LocalStorage helpers ──────────────────────────────────────
+function getIndex(){try{return JSON.parse(storage.get(LS_INDEX))||[];}catch{return [];}}
+function setIndex(arr){storage.set(LS_INDEX,JSON.stringify(arr))}
+function saveForm(name,fieldsData){
+  storage.set(LS_PREFIX+name,JSON.stringify(fieldsData));
+  const idx=getIndex();
+  if(!idx.includes(name)){idx.push(name);setIndex(idx);}
+}
+function loadForm(name){try{return JSON.parse(storage.get(LS_PREFIX+name))||null;}catch{return null;}}
+function deleteForm(name){
+  storage.remove(LS_PREFIX+name);
+  const idx=getIndex().filter(n=>n!==name);
+  setIndex(idx);
+}
+
+// ── Save status flash ─────────────────────────────────────────
+function flashSaved(){
+  const el=document.getElementById('save-status');
+  el.textContent=`✓ "${currentFormName}" saved`;
+  el.classList.add('visible');
+  clearTimeout(saveStatusTimer);
+  saveStatusTimer=setTimeout(()=>el.classList.remove('visible'),3000);
+}
+
+// ── Auto-save ─────────────────────────────────────────────────
+function saveCurrentForm(manual=false){
+  if(!currentFormName) return;
+  saveForm(currentFormName,fields);
+  renderSavedList();
+  flashSaved();
+}
+
+// ── Saved list UI ─────────────────────────────────────────────
+function renderSavedList(){
+  const idx=getIndex();
+  const list=document.getElementById('saved-list');
+  list.innerHTML='';
+  idx.forEach(name=>{
+    const item=document.createElement('div');
+    item.className='saved-item'+(name===currentFormName?' active-form':'');
+    item.innerHTML=`<span class="saved-item-name" title="${name}">${name}</span><button class="saved-item-del" onclick="promptDelete('${name}',event)" title="Delete">✕</button>`;
+    item.addEventListener('click',()=>switchToForm(name));
+    list.appendChild(item);
+  });
+}
+
+function switchToForm(name){
+  if(name===currentFormName) return;
+  // save current before switching
+  if(currentFormName) saveForm(currentFormName,fields);
+  const saved=loadForm(name);
+  if(!saved) return;
+  currentFormName=name;
+  fields=saved;
+  render();
+  renderSavedList();
+}
+
+// ── Name modal ────────────────────────────────────────────────
+function promptNewForm(){
+  const modal=document.getElementById('modal-name');
+  document.getElementById('modal-name-input').value='';
+  document.getElementById('modal-name-cancel').style.display='inline-block';
+  document.getElementById('modal-name').querySelector('.modal-box h3').textContent='New Form';
+  document.getElementById('modal-name').querySelector('.modal-box p').textContent='Give this form a name.';
+  document.querySelector('#modal-name .btn-primary').textContent='Create Form';
+  modal.style.display='flex';
+  setTimeout(()=>document.getElementById('modal-name-input').focus(),50);
+}
+
+function showInitialNameModal(){
+  const modal=document.getElementById('modal-name');
+  document.getElementById('modal-name-input').value='';
+  document.getElementById('modal-name-cancel').style.display='none';
+  document.getElementById('modal-name').querySelector('.modal-box h3').textContent='Name your form';
+  document.getElementById('modal-name').querySelector('.modal-box p').textContent='Give this form a name so you can find it later.';
+  document.querySelector('#modal-name .btn-primary').textContent='Create Form';
+  modal.style.display='flex';
+  setTimeout(()=>document.getElementById('modal-name-input').focus(),50);
+}
+
+function closeNameModal(){
+  document.getElementById('modal-name').style.display='none';
+}
+
+function confirmName(){
+  const val=document.getElementById('modal-name-input').value.trim();
+  if(!val) return;
+  closeNameModal();
+  // if this is a brand new form (not switching), reset fields
+  if(currentFormName!==val){
+    currentFormName=val;
+    const existing=loadForm(val);
+    if(existing){
+      fields=existing;
+    } else {
+      fields=[];
+      setDefaultFields();
+    }
+  }
+  saveCurrentForm();
+  render();
+  renderSavedList();
+}
+
+document.getElementById('modal-name-input').addEventListener('keydown',e=>{
+  if(e.key==='Enter') confirmName();
+});
+
+// ── Delete modal ──────────────────────────────────────────────
+function promptDelete(name,e){
+  e.stopPropagation();
+  pendingDeleteName=name;
+  document.getElementById('modal-delete-msg').textContent=`Are you sure you want to delete "${name}"? This cannot be undone.`;
+  document.getElementById('modal-delete').style.display='flex';
+}
+function closeDeleteModal(){
+  document.getElementById('modal-delete').style.display='none';
+  pendingDeleteName='';
+}
+function confirmDelete(){
+  if(!pendingDeleteName) return;
+  deleteForm(pendingDeleteName);
+  if(pendingDeleteName===currentFormName){
+    // switch to another form or create blank
+    const remaining=getIndex();
+    if(remaining.length>0){
+      currentFormName=remaining[0];
+      fields=loadForm(currentFormName)||[];
+      render();
+    } else {
+      currentFormName='';
+      fields=[];
+      render();
+      setTimeout(showInitialNameModal,200);
+    }
+  }
+  closeDeleteModal();
+  renderSavedList();
+}
+
+// ── Tab switching ─────────────────────────────────────────────
 function switchTab(t){
   document.querySelectorAll('.tab').forEach(el=>el.classList.toggle('active',el.dataset.tab===t));
   document.getElementById('panel-editor').classList.toggle('active',t==='editor');
@@ -259,7 +472,8 @@ function switchTab(t){
   if(t==='preview') renderPreview();
 }
 
-function initDefaults(){
+// ── Default fields ────────────────────────────────────────────
+function setDefaultFields(){
   [{type:'text',  label:'First Name', id:'FirstName',    width:'half',required:true},
    {type:'text',  label:'Last Name',  id:'LastName',     width:'half',required:true},
    {type:'tel',   label:'Phone',      id:'Phone',        width:'half',required:true},
@@ -267,7 +481,20 @@ function initDefaults(){
    {type:'address',label:'Address',   id:'Address',      width:'full',required:false},
    {type:'message',label:'How can we help you?', id:'Message', width:'full',required:true}
   ].forEach(f=>fields.push({...f,_id:uid()}));
-  render();
+}
+
+// ── Init ──────────────────────────────────────────────────────
+function init(){
+  const idx=getIndex();
+  if(idx.length>0){
+    // restore last used form (first in list)
+    currentFormName=idx[0];
+    fields=loadForm(currentFormName)||[];
+    render();
+    renderSavedList();
+  } else {
+    showInitialNameModal();
+  }
 }
 
 function addField(type){
@@ -277,9 +504,14 @@ function addField(type){
   if(d.opts) f.opts=[...d.opts];
   fields.push(f);
   render();
+  saveCurrentForm();
 }
 
-function removeField(fid){fields=fields.filter(f=>f._id!==fid);render()}
+function removeField(fid){
+  fields=fields.filter(f=>f._id!==fid);
+  render();
+  saveCurrentForm();
+}
 
 function updateField(fid,key,val){
   const f=fields.find(x=>x._id===fid);
@@ -289,13 +521,14 @@ function updateField(fid,key,val){
     if(card) card.className=`field-card w-${val}`;
   }
   renderCode();checkDuplicateIds();
+  saveCurrentForm();
 }
 
-function addOpt(fid){const f=fields.find(x=>x._id===fid);if(f&&f.opts)f.opts.push('New Option');render()}
-function removeOpt(fid,i){const f=fields.find(x=>x._id===fid);if(f&&f.opts)f.opts.splice(i,1);render()}
-function updateOpt(fid,i,val){const f=fields.find(x=>x._id===fid);if(f&&f.opts)f.opts[i]=val;renderCode()}
-function mfAdd(fid){const f=fields.find(x=>x._id===fid);if(f)f.extraCount=(f.extraCount||1)+1;render()}
-function mfRemove(fid){const f=fields.find(x=>x._id===fid);if(f&&f.extraCount>1)f.extraCount-=1;render()}
+function addOpt(fid){const f=fields.find(x=>x._id===fid);if(f&&f.opts)f.opts.push('New Option');render();saveCurrentForm()}
+function removeOpt(fid,i){const f=fields.find(x=>x._id===fid);if(f&&f.opts)f.opts.splice(i,1);render();saveCurrentForm()}
+function updateOpt(fid,i,val){const f=fields.find(x=>x._id===fid);if(f&&f.opts)f.opts[i]=val;renderCode();saveCurrentForm()}
+function mfAdd(fid){const f=fields.find(x=>x._id===fid);if(f)f.extraCount=(f.extraCount||1)+1;render();saveCurrentForm()}
+function mfRemove(fid){const f=fields.find(x=>x._id===fid);if(f&&f.extraCount>1)f.extraCount-=1;render();saveCurrentForm()}
 
 function onDragStart(e,fid){dragSrc=fid;e.currentTarget.classList.add('dragging');e.dataTransfer.effectAllowed='move'}
 function onDragEnd(e){e.currentTarget.classList.remove('dragging');document.querySelectorAll('.drag-over').forEach(el=>el.classList.remove('drag-over'))}
@@ -303,7 +536,8 @@ function onDragOver(e,fid){e.preventDefault();if(dragSrc===fid)return;document.q
 function onDrop(e,fid){
   e.preventDefault();if(dragSrc===fid)return;
   const si=fields.findIndex(x=>x._id===dragSrc),ti=fields.findIndex(x=>x._id===fid);
-  const [item]=fields.splice(si,1);fields.splice(ti,0,item);render();
+  const [item]=fields.splice(si,1);fields.splice(ti,0,item);
+  render();saveCurrentForm();
 }
 
 function render(){
@@ -590,11 +824,11 @@ function renderPreview(){
     const w=f.width||'full';
     switch(f.type){
       case 'text':
-        html+=`<li class="${w}"><div class="input-text"><label>${label}</label><input type="text" placeholder="" disabled></div></li>`;break;
+        html+=`<li class="${w}"><div class="input-text"><label>${label}</label><input type="text" disabled></div></li>`;break;
       case 'tel':
         html+=`<li class="${w}"><div class="input-text"><label>${label}</label><input type="tel" placeholder="(___) ___-____" disabled></div></li>`;break;
       case 'email':
-        html+=`<li class="${w}"><div class="input-text"><label>${label}</label><input type="email" placeholder="" disabled></div></li>`;break;
+        html+=`<li class="${w}"><div class="input-text"><label>${label}</label><input type="email" disabled></div></li>`;break;
       case 'address':
         html+=`<li class="${w}"><div class="input-text"><label>${label}</label><input type="text" placeholder="Enter a location" disabled></div></li>`;break;
       case 'state':
@@ -632,12 +866,11 @@ function renderPreview(){
       case 'divider':
         html+=`<h2 class="form-divider" style="width:100%;margin:8px 0">${label}</h2>`;break;
       case 'captcha':
-        html+=`<li class="full"><div class="verify-cont"><span class="field-cap">Y9KWB</span></div><div class="input-text"><label>🛡️ Please enter the above verification code:</label><input type="text" placeholder="" disabled></div></li>`;break;
+        html+=`<li class="full"><div class="verify-cont"><span class="field-cap">Y9KWB</span></div><div class="input-text"><label>🛡️ Please enter the above verification code:</label><input type="text" disabled></div></li>`;break;
     }
   });
   html+=`<li class="full"><div class="inp-mrk"><small>By submitting, you agree to receive text messages from {BusinessName} at the number provided, including those related to your inquiry, follow-ups, and review requests, via automated technology. Consent is not a condition of purchase. Msg &amp; data rates may apply. Reply STOP to cancel or HELP for assistance. <a href="#">Acceptable Use Policy</a></small></div></li>`;
-  html+='</ul></fieldset>';
-  html+=`<button class="preview-submit" disabled>Send Message</button>`;
+  html+='</ul></fieldset><button class="preview-submit" disabled>Send Message</button>';
   container.innerHTML=html;
 }
 
@@ -653,7 +886,7 @@ function copyCode(){
   setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied')},2000);
 }
 
-initDefaults();
+init();
 </script>
 </body>
 </html>
