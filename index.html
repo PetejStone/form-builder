@@ -8,15 +8,26 @@
 html,body{height:100%;overflow:hidden;font-family:system-ui,sans-serif;font-size:13px;background:#f0f0f0}
 #app{display:grid;grid-template-columns:200px 1fr;grid-template-rows:100%;height:100vh}
 #sidebar{background:#1e1e2e;color:#cdd6f4;display:flex;flex-direction:column;overflow:hidden;grid-column:1}
-#sidebar h2{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6c7086;padding:14px 14px 8px;flex-shrink:0}
-#field-btns{padding:0 10px 10px;display:flex;flex-direction:column;gap:5px;overflow-y:auto;flex:1}
+#sidebar>h2{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6c7086;padding:14px 14px 8px;flex-shrink:0}
+#field-btns{padding:0 10px 10px;display:flex;flex-direction:column;gap:5px;overflow-y:auto;flex:1;min-height:0}
 .add-btn{background:#313244;border:none;color:#cdd6f4;padding:7px 10px;border-radius:6px;cursor:pointer;text-align:left;font-size:12px;display:flex;align-items:center;gap:7px;transition:background .15s}
 .add-btn:hover{background:#45475a}
 .add-btn svg{width:14px;height:14px;flex-shrink:0;opacity:.6}
+/* Required default toggle */
+#req-toggle-section{flex-shrink:0;border-top:1px solid #313244;padding:10px}
+#req-toggle-section h2{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6c7086;margin-bottom:8px}
+#req-toggle-row{display:flex;align-items:center;gap:8px}
+#req-toggle-label{font-size:11px;color:#cdd6f4;flex:1;line-height:1.3}
+.tog{position:relative;display:inline-block;width:32px;height:18px;flex-shrink:0}
+.tog input{opacity:0;width:0;height:0}
+.tog-sl{position:absolute;inset:0;background:#555;border-radius:9px;transition:.2s;cursor:pointer}
+.tog-sl:before{content:'';position:absolute;width:12px;height:12px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+.tog input:checked+.tog-sl{background:#7c3aed}
+.tog input:checked+.tog-sl:before{transform:translateX(14px)}
 /* Saved forms section */
 #saved-section{flex-shrink:0;border-top:1px solid #313244;padding:10px}
 #saved-section h2{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6c7086;margin-bottom:8px}
-#saved-list{display:flex;flex-direction:column;gap:4px;max-height:180px;overflow-y:auto}
+#saved-list{display:flex;flex-direction:column;gap:4px;max-height:140px;overflow-y:auto}
 .saved-item{display:flex;align-items:center;gap:4px;background:#313244;border-radius:6px;padding:5px 8px;cursor:pointer;transition:background .15s}
 .saved-item:hover{background:#3d3f52}
 .saved-item.active-form{background:#45475a;outline:1px solid #7c3aed33}
@@ -49,7 +60,9 @@ html,body{height:100%;overflow:hidden;font-family:system-ui,sans-serif;font-size
 .drag-handle{cursor:grab;color:#bbb;font-size:16px;line-height:1;user-select:none;padding:0 2px}
 .drag-handle:active{cursor:grabbing}
 .card-type{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:#888;background:#f0f0f0;padding:2px 7px;border-radius:4px;flex-shrink:0}
-.card-actions{margin-left:auto}
+.card-actions{margin-left:auto;display:flex;align-items:center;gap:8px}
+.dup-check-wrap{display:flex;align-items:center;gap:4px;font-size:11px;color:#888;cursor:pointer;user-select:none}
+.dup-check-wrap input[type=checkbox]{width:13px;height:13px;cursor:pointer;accent-color:#7c3aed}
 .icon-btn{background:none;border:none;cursor:pointer;padding:3px 5px;border-radius:4px;color:#888;font-size:12px;transition:background .12s,color .12s}
 .icon-btn.danger:hover{background:#fee2e2;color:#dc2626}
 .card-body{padding:10px 12px;display:flex;flex-direction:column;gap:8px}
@@ -82,6 +95,9 @@ input:checked+.slider-t:before{transform:translateX(14px)}
 #copy-btn.copied{background:#1e8a4a;color:#fff}
 #code-out{flex:1;overflow:auto;padding:12px 16px;font-family:monospace;font-size:11.5px;line-height:1.6;color:#cdd6f4;white-space:pre;tab-size:2}
 #dup-flag{display:none;background:#dc2626;color:#fff;font-size:12px;padding:8px 16px;flex-shrink:0;align-items:center;gap:8px}
+/* Floating duplicate button */
+#dup-fab{position:fixed;top:16px;right:16px;background:#7c3aed;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;z-index:500;box-shadow:0 4px 12px rgba(124,58,237,.4);display:none;align-items:center;gap:6px;transition:background .15s}
+#dup-fab:hover{background:#6d28d9}
 /* Preview */
 #panel-preview{background:#f9f9f9;padding:20px}
 #panel-preview.active{display:flex;flex-direction:column;align-items:center}
@@ -131,6 +147,10 @@ input:checked+.slider-t:before{transform:translateX(14px)}
 </style>
 </head>
 <body>
+
+<!-- Floating duplicate button -->
+<button id="dup-fab" onclick="duplicateChecked()">&#x2398; Duplicate Field(s)</button>
+
 <div id="app">
   <div id="sidebar">
     <h2>Add Fields</h2>
@@ -151,6 +171,18 @@ input:checked+.slider-t:before{transform:translateX(14px)}
       <button class="add-btn" id="btn-multifile" onclick="addField('multifile')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h6l3 3v9H4V2z"/><path d="M10 2v3h3"/><path d="M4 8h5M4 11h3"/></svg>Multi File Upload</button>
       <button class="add-btn" id="btn-captcha" onclick="addField('captcha')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1l1.5 2.5L12 4l-2 2 .5 2.5L8 7.5 5.5 8.5 6 6 4 4l2.5-.5L8 1z"/><path d="M3 10l1 4M13 10l-1 4M5 14h6"/></svg>Captcha</button>
     </div>
+
+    <div id="req-toggle-section">
+      <h2>Field Defaults</h2>
+      <div id="req-toggle-row">
+        <span id="req-toggle-label">Required is ON by default</span>
+        <label class="tog">
+          <input type="checkbox" id="req-default-toggle" checked onchange="updateReqDefault()">
+          <span class="tog-sl"></span>
+        </label>
+      </div>
+    </div>
+
     <div id="saved-section">
       <h2>Saved Forms</h2>
       <div id="saved-list"></div>
@@ -173,7 +205,7 @@ input:checked+.slider-t:before{transform:translateX(14px)}
       <div class="panel" id="panel-code">
         <div id="code-toolbar">
           <button id="copy-btn" onclick="copyCode()">Copy</button>
-          <button onclick="saveCurrentForm(true)" style="background:#313244;border:none;color:#cdd6f4;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px;">💾 Save</button>
+          <button onclick="saveCurrentForm(true)" style="background:#313244;border:none;color:#cdd6f4;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px;">&#x1F4BE; Save</button>
         </div>
         <div id="code-out"></div>
         <div id="dup-flag">
@@ -184,7 +216,7 @@ input:checked+.slider-t:before{transform:translateX(14px)}
       <div class="panel" id="panel-preview">
         <div style="width:100%;max-width:720px">
           <div style="background:#fef9c3;border:1px solid #eab308;border-radius:6px;padding:8px 12px;font-size:11px;color:#854d0e;margin-bottom:16px;display:flex;align-items:flex-start;gap:7px">
-            <span style="flex-shrink:0">ℹ️</span>
+            <span style="flex-shrink:0">&#x2139;&#xFE0F;</span>
             <span>This is a preview only. Final product may differ due to color scheme, font styles, and other customizations.</span>
           </div>
           <div id="preview-form"></div>
@@ -201,8 +233,8 @@ input:checked+.slider-t:before{transform:translateX(14px)}
 <!-- Name modal -->
 <div class="modal-overlay" id="modal-name" style="display:none">
   <div class="modal-box">
-    <h3>Name your form</h3>
-    <p>Give this form a name so you can find it later.</p>
+    <h3 id="modal-name-title">Name your form</h3>
+    <p id="modal-name-desc">Give this form a name so you can find it later.</p>
     <input id="modal-name-input" type="text" placeholder="e.g. Contact Form, Job Application..." maxlength="60">
     <div class="modal-btns">
       <button class="btn-cancel" id="modal-name-cancel" style="display:none" onclick="closeNameModal()">Cancel</button>
@@ -286,20 +318,20 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 /*END Calendar styles*/
 \t</style>`;
 
-let fields=[],dragSrc=null;
+let fields=[], dragSrc=null;
 let currentFormName='';
 let saveStatusTimer=null;
 let pendingDeleteName='';
+let reqDefaultOn=true; // Required ON by default
 
 const LS_PREFIX='formbuilder_form_';
 const LS_INDEX='formbuilder_index';
 
-// Safe localStorage wrapper — falls back to in-memory if sandboxed
 const memStore={};
 const storage={
-  get(k){try{return localStorage.getItem(k)}catch{return memStore[k]??null}},
-  set(k,v){try{localStorage.setItem(k,v)}catch{memStore[k]=v}},
-  remove(k){try{localStorage.removeItem(k)}catch{delete memStore[k]}}
+  get(k){try{return localStorage.getItem(k)}catch(e){return memStore[k]!==undefined?memStore[k]:null}},
+  set(k,v){try{localStorage.setItem(k,v)}catch(e){memStore[k]=v}},
+  remove(k){try{localStorage.removeItem(k)}catch(e){delete memStore[k]}}
 };
 
 const defaults={
@@ -322,39 +354,42 @@ const defaults={
 
 function uid(){return Math.random().toString(36).slice(2,8)}
 
+// ── Required default toggle ───────────────────────────────────
+function updateReqDefault(){
+  reqDefaultOn=document.getElementById('req-default-toggle').checked;
+  document.getElementById('req-toggle-label').textContent=reqDefaultOn?'Required is ON by default':'Required is OFF by default';
+}
+
 // ── LocalStorage helpers ──────────────────────────────────────
-function getIndex(){try{return JSON.parse(storage.get(LS_INDEX))||[];}catch{return [];}}
+function getIndex(){try{return JSON.parse(storage.get(LS_INDEX))||[];}catch(e){return [];}}
 function setIndex(arr){storage.set(LS_INDEX,JSON.stringify(arr))}
 function saveForm(name,fieldsData){
   storage.set(LS_PREFIX+name,JSON.stringify(fieldsData));
   const idx=getIndex();
   if(!idx.includes(name)){idx.push(name);setIndex(idx);}
 }
-function loadForm(name){try{return JSON.parse(storage.get(LS_PREFIX+name))||null;}catch{return null;}}
+function loadForm(name){try{return JSON.parse(storage.get(LS_PREFIX+name))||null;}catch(e){return null;}}
 function deleteForm(name){
   storage.remove(LS_PREFIX+name);
   const idx=getIndex().filter(n=>n!==name);
   setIndex(idx);
 }
 
-// ── Save status flash ─────────────────────────────────────────
 function flashSaved(){
   const el=document.getElementById('save-status');
-  el.textContent=`✓ "${currentFormName}" saved`;
+  el.textContent='\u2713 "'+currentFormName+'" saved';
   el.classList.add('visible');
   clearTimeout(saveStatusTimer);
   saveStatusTimer=setTimeout(()=>el.classList.remove('visible'),3000);
 }
 
-// ── Auto-save ─────────────────────────────────────────────────
-function saveCurrentForm(manual=false){
+function saveCurrentForm(manual){
   if(!currentFormName) return;
   saveForm(currentFormName,fields);
   renderSavedList();
   flashSaved();
 }
 
-// ── Saved list UI ─────────────────────────────────────────────
 function renderSavedList(){
   const idx=getIndex();
   const list=document.getElementById('saved-list');
@@ -362,7 +397,8 @@ function renderSavedList(){
   idx.forEach(name=>{
     const item=document.createElement('div');
     item.className='saved-item'+(name===currentFormName?' active-form':'');
-    item.innerHTML=`<span class="saved-item-name" title="${name}">${name}</span><button class="saved-item-del" onclick="promptDelete('${name}',event)" title="Delete">✕</button>`;
+    item.innerHTML='<span class="saved-item-name" title="'+esc(name)+'">'+esc(name)+'</span><button class="saved-item-del" title="Delete">\u2715</button>';
+    item.querySelector('.saved-item-del').addEventListener('click',e=>{e.stopPropagation();promptDelete(name);});
     item.addEventListener('click',()=>switchToForm(name));
     list.appendChild(item);
   });
@@ -370,7 +406,6 @@ function renderSavedList(){
 
 function switchToForm(name){
   if(name===currentFormName) return;
-  // save current before switching
   if(currentFormName) saveForm(currentFormName,fields);
   const saved=loadForm(name);
   if(!saved) return;
@@ -380,90 +415,55 @@ function switchToForm(name){
   renderSavedList();
 }
 
-// ── Name modal ────────────────────────────────────────────────
 function promptNewForm(){
-  const modal=document.getElementById('modal-name');
   document.getElementById('modal-name-input').value='';
   document.getElementById('modal-name-cancel').style.display='inline-block';
-  document.getElementById('modal-name').querySelector('.modal-box h3').textContent='New Form';
-  document.getElementById('modal-name').querySelector('.modal-box p').textContent='Give this form a name.';
-  document.querySelector('#modal-name .btn-primary').textContent='Create Form';
-  modal.style.display='flex';
+  document.getElementById('modal-name-title').textContent='New Form';
+  document.getElementById('modal-name-desc').textContent='Give this form a name.';
+  document.getElementById('modal-name').style.display='flex';
   setTimeout(()=>document.getElementById('modal-name-input').focus(),50);
 }
-
 function showInitialNameModal(){
-  const modal=document.getElementById('modal-name');
   document.getElementById('modal-name-input').value='';
   document.getElementById('modal-name-cancel').style.display='none';
-  document.getElementById('modal-name').querySelector('.modal-box h3').textContent='Name your form';
-  document.getElementById('modal-name').querySelector('.modal-box p').textContent='Give this form a name so you can find it later.';
-  document.querySelector('#modal-name .btn-primary').textContent='Create Form';
-  modal.style.display='flex';
+  document.getElementById('modal-name-title').textContent='Name your form';
+  document.getElementById('modal-name-desc').textContent='Give this form a name so you can find it later.';
+  document.getElementById('modal-name').style.display='flex';
   setTimeout(()=>document.getElementById('modal-name-input').focus(),50);
 }
-
-function closeNameModal(){
-  document.getElementById('modal-name').style.display='none';
-}
-
+function closeNameModal(){document.getElementById('modal-name').style.display='none';}
 function confirmName(){
   const val=document.getElementById('modal-name-input').value.trim();
   if(!val) return;
   closeNameModal();
-  // if this is a brand new form (not switching), reset fields
-  if(currentFormName!==val){
-    currentFormName=val;
-    const existing=loadForm(val);
-    if(existing){
-      fields=existing;
-    } else {
-      fields=[];
-      setDefaultFields();
-    }
-  }
+  currentFormName=val;
+  const existing=loadForm(val);
+  if(existing){fields=existing;}
+  else{fields=[];setDefaultFields();}
   saveCurrentForm();
   render();
   renderSavedList();
 }
+document.getElementById('modal-name-input').addEventListener('keydown',e=>{if(e.key==='Enter')confirmName();});
 
-document.getElementById('modal-name-input').addEventListener('keydown',e=>{
-  if(e.key==='Enter') confirmName();
-});
-
-// ── Delete modal ──────────────────────────────────────────────
-function promptDelete(name,e){
-  e.stopPropagation();
+function promptDelete(name){
   pendingDeleteName=name;
-  document.getElementById('modal-delete-msg').textContent=`Are you sure you want to delete "${name}"? This cannot be undone.`;
+  document.getElementById('modal-delete-msg').textContent='Are you sure you want to delete "'+name+'"? This cannot be undone.';
   document.getElementById('modal-delete').style.display='flex';
 }
-function closeDeleteModal(){
-  document.getElementById('modal-delete').style.display='none';
-  pendingDeleteName='';
-}
+function closeDeleteModal(){document.getElementById('modal-delete').style.display='none';pendingDeleteName='';}
 function confirmDelete(){
   if(!pendingDeleteName) return;
   deleteForm(pendingDeleteName);
   if(pendingDeleteName===currentFormName){
-    // switch to another form or create blank
     const remaining=getIndex();
-    if(remaining.length>0){
-      currentFormName=remaining[0];
-      fields=loadForm(currentFormName)||[];
-      render();
-    } else {
-      currentFormName='';
-      fields=[];
-      render();
-      setTimeout(showInitialNameModal,200);
-    }
+    if(remaining.length>0){currentFormName=remaining[0];fields=loadForm(currentFormName)||[];render();}
+    else{currentFormName='';fields=[];render();setTimeout(showInitialNameModal,200);}
   }
   closeDeleteModal();
   renderSavedList();
 }
 
-// ── Tab switching ─────────────────────────────────────────────
 function switchTab(t){
   document.querySelectorAll('.tab').forEach(el=>el.classList.toggle('active',el.dataset.tab===t));
   document.getElementById('panel-editor').classList.toggle('active',t==='editor');
@@ -472,24 +472,25 @@ function switchTab(t){
   if(t==='preview') renderPreview();
 }
 
-// ── Default fields ────────────────────────────────────────────
 function setDefaultFields(){
   [{type:'text',  label:'First Name', id:'FirstName',    width:'half',required:true},
    {type:'text',  label:'Last Name',  id:'LastName',     width:'half',required:true},
    {type:'tel',   label:'Phone',      id:'Phone',        width:'half',required:true},
    {type:'email', label:'Email',      id:'EmailAddress', width:'half',required:true},
    {type:'address',label:'Address',   id:'Address',      width:'full',required:false},
+   {type:'select',label:'Are you a new customer?', id:'LeadTypeID', width:'full',required:true,
+     opts:["Yes, I am a potential new customer","No, I'm a current existing customer","I'm neither."]},
    {type:'message',label:'How can we help you?', id:'Message', width:'full',required:true}
-  ].forEach(f=>fields.push({...f,_id:uid()}));
+  ].forEach(f=>fields.push(Object.assign({},f,{_id:uid(),_dup:false})));
 }
 
-// ── Init ──────────────────────────────────────────────────────
 function init(){
   const idx=getIndex();
   if(idx.length>0){
-    // restore last used form (first in list)
     currentFormName=idx[0];
     fields=loadForm(currentFormName)||[];
+    // ensure _dup exists on old saves
+    fields.forEach(f=>{if(f._dup===undefined)f._dup=false;});
     render();
     renderSavedList();
   } else {
@@ -497,11 +498,60 @@ function init(){
   }
 }
 
+// ── Duplicate feature ─────────────────────────────────────────
+function toggleDupCheck(fid, checked){
+  const f=fields.find(x=>x._id===fid);
+  if(f) f._dup=checked;
+  updateDupFab();
+}
+
+function updateDupFab(){
+  const fab=document.getElementById('dup-fab');
+  const hasAny=fields.some(f=>f._dup);
+  fab.style.display=hasAny?'flex':'none';
+}
+
+// Increment trailing number in a string, or append 2
+function bumpId(id){
+  if(!id) return id;
+  const m=id.match(/^(.*?)(\d+)$/);
+  if(m) return m[1]+(parseInt(m[2])+1);
+  return id+'2';
+}
+
+// Ensure bumped ID doesn't conflict with existing IDs
+function uniqueId(baseId){
+  const existing=new Set(fields.map(f=>f.id).filter(Boolean));
+  let candidate=bumpId(baseId);
+  while(existing.has(candidate)) candidate=bumpId(candidate);
+  return candidate;
+}
+
+function duplicateChecked(){
+  const todup=fields.filter(f=>f._dup);
+  if(!todup.length) return;
+  todup.forEach(orig=>{
+    const copy=JSON.parse(JSON.stringify(orig));
+    copy._id=uid();
+    copy._dup=false;
+    if(copy.id) copy.id=uniqueId(orig.id);
+    orig._dup=false;
+    fields.push(copy);
+  });
+  render();
+  saveCurrentForm();
+  updateDupFab();
+}
+
 function addField(type){
   if((type==='captcha'||type==='multifile')&&fields.some(f=>f.type===type)) return;
   const d=defaults[type];
-  const f={_id:uid(),type,...d};
+  const f={_id:uid(),type,...d,_dup:false};
   if(d.opts) f.opts=[...d.opts];
+  // apply required default override
+  if(type!=='captcha'&&type!=='divider'&&type!=='multifile'&&type!=='address'&&type!=='resume'){
+    f.required=reqDefaultOn;
+  }
   fields.push(f);
   render();
   saveCurrentForm();
@@ -511,28 +561,29 @@ function removeField(fid){
   fields=fields.filter(f=>f._id!==fid);
   render();
   saveCurrentForm();
+  updateDupFab();
 }
 
 function updateField(fid,key,val){
   const f=fields.find(x=>x._id===fid);
   if(f) f[key]=val;
   if(key==='width'){
-    const card=document.querySelector(`[data-fid="${fid}"]`);
-    if(card) card.className=`field-card w-${val}`;
+    const card=document.querySelector('[data-fid="'+fid+'"]');
+    if(card) card.className='field-card w-'+val;
   }
   renderCode();checkDuplicateIds();
   saveCurrentForm();
 }
 
-function addOpt(fid){const f=fields.find(x=>x._id===fid);if(f&&f.opts)f.opts.push('New Option');render();saveCurrentForm()}
-function removeOpt(fid,i){const f=fields.find(x=>x._id===fid);if(f&&f.opts)f.opts.splice(i,1);render();saveCurrentForm()}
-function updateOpt(fid,i,val){const f=fields.find(x=>x._id===fid);if(f&&f.opts)f.opts[i]=val;renderCode();saveCurrentForm()}
-function mfAdd(fid){const f=fields.find(x=>x._id===fid);if(f)f.extraCount=(f.extraCount||1)+1;render();saveCurrentForm()}
-function mfRemove(fid){const f=fields.find(x=>x._id===fid);if(f&&f.extraCount>1)f.extraCount-=1;render();saveCurrentForm()}
+function addOpt(fid){const f=fields.find(x=>x._id===fid);if(f&&f.opts){f.opts.push('New Option');render();saveCurrentForm();}}
+function removeOpt(fid,i){const f=fields.find(x=>x._id===fid);if(f&&f.opts){f.opts.splice(i,1);render();saveCurrentForm();}}
+function updateOpt(fid,i,val){const f=fields.find(x=>x._id===fid);if(f&&f.opts){f.opts[i]=val;renderCode();saveCurrentForm();}}
+function mfAdd(fid){const f=fields.find(x=>x._id===fid);if(f){f.extraCount=(f.extraCount||1)+1;render();saveCurrentForm();}}
+function mfRemove(fid){const f=fields.find(x=>x._id===fid);if(f&&f.extraCount>1){f.extraCount--;render();saveCurrentForm();}}
 
-function onDragStart(e,fid){dragSrc=fid;e.currentTarget.classList.add('dragging');e.dataTransfer.effectAllowed='move'}
-function onDragEnd(e){e.currentTarget.classList.remove('dragging');document.querySelectorAll('.drag-over').forEach(el=>el.classList.remove('drag-over'))}
-function onDragOver(e,fid){e.preventDefault();if(dragSrc===fid)return;document.querySelectorAll('.drag-over').forEach(el=>el.classList.remove('drag-over'));e.currentTarget.classList.add('drag-over')}
+function onDragStart(e,fid){dragSrc=fid;e.currentTarget.classList.add('dragging');e.dataTransfer.effectAllowed='move';}
+function onDragEnd(e){e.currentTarget.classList.remove('dragging');document.querySelectorAll('.drag-over').forEach(el=>el.classList.remove('drag-over'));}
+function onDragOver(e,fid){e.preventDefault();if(dragSrc===fid)return;document.querySelectorAll('.drag-over').forEach(el=>el.classList.remove('drag-over'));e.currentTarget.classList.add('drag-over');}
 function onDrop(e,fid){
   e.preventDefault();if(dragSrc===fid)return;
   const si=fields.findIndex(x=>x._id===dragSrc),ti=fields.findIndex(x=>x._id===fid);
@@ -540,90 +591,72 @@ function onDrop(e,fid){
   render();saveCurrentForm();
 }
 
+function esc(s=''){return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
 function render(){
   const list=document.getElementById('fields-list');
   list.innerHTML='';
   fields.forEach(f=>{
     const card=document.createElement('div');
-    card.className=`field-card w-${f.width||'full'}`;card.draggable=true;card.dataset.fid=f._id;
+    card.className='field-card w-'+(f.width||'full');
+    card.draggable=true;card.dataset.fid=f._id;
     card.addEventListener('dragstart',e=>onDragStart(e,f._id));
     card.addEventListener('dragend',onDragEnd);
     card.addEventListener('dragover',e=>onDragOver(e,f._id));
     card.addEventListener('drop',e=>onDrop(e,f._id));
+
     const hasOpts=f.type==='checkbox'||f.type==='radio'||f.type==='select';
     const isState=f.type==='state';
     const isCaptcha=f.type==='captcha';
     const isDivider=f.type==='divider';
     const isMultifile=f.type==='multifile';
+
     let optsHtml='';
     if(isMultifile){
       const ec=f.extraCount||1;
-      optsHtml=`<div class="opts-section">
-        <label>Label text</label>
-        <div class="opt-row"><input value="${esc(f.label)}" oninput="updateField('${f._id}','label',this.value)" style="flex:1"></div>
-        <label style="margin-top:6px">"Upload another file" label</label>
-        <div class="opt-row"><input value="${esc(f.uploadMoreLabel||'Upload another file')}" oninput="updateField('${f._id}','uploadMoreLabel',this.value)" style="flex:1"></div>
-        <div style="display:flex;align-items:center;gap:12px;margin-top:8px;font-size:11px;color:#666">
-          <span>Extra file slots: <strong>${ec}</strong></span>
-          <span>Total file slots: <strong>${ec+1}</strong></span>
-        </div>
-        <div style="display:flex;gap:6px;margin-top:6px">
-          <button class="btn-small add" onclick="mfAdd('${f._id}')">+ Add slot</button>
-          <button class="btn-small" onclick="mfRemove('${f._id}')" ${ec>1?'':'disabled style="opacity:.4;cursor:default"'}>− Remove slot</button>
-        </div>
-      </div>`;
+      optsHtml='<div class="opts-section"><label>Label text</label><div class="opt-row"><input value="'+esc(f.label)+'" oninput="updateField(\''+f._id+'\',\'label\',this.value)" style="flex:1"></div><label style="margin-top:6px">"Upload another file" label</label><div class="opt-row"><input value="'+esc(f.uploadMoreLabel||'Upload another file')+'" oninput="updateField(\''+f._id+'\',\'uploadMoreLabel\',this.value)" style="flex:1"></div><div style="display:flex;align-items:center;gap:12px;margin-top:8px;font-size:11px;color:#666"><span>Extra file slots: <strong>'+ec+'</strong></span><span>Total file slots: <strong>'+(ec+1)+'</strong></span></div><div style="display:flex;gap:6px;margin-top:6px"><button class="btn-small add" onclick="mfAdd(\''+f._id+'\')">+ Add slot</button><button class="btn-small" onclick="mfRemove(\''+f._id+'\')" '+(ec>1?'':'disabled style="opacity:.4;cursor:default"')+'>&minus; Remove slot</button></div></div>';
     }
     if(hasOpts){
-      const rows=(f.opts||[]).map((o,i)=>`<div class="opt-row"><input value="${esc(o)}" oninput="updateOpt('${f._id}',${i},this.value)"><button class="btn-small" onclick="removeOpt('${f._id}',${i})" style="color:#dc2626">✕</button></div>`).join('');
-      optsHtml=`<div class="opts-section"><label>Options</label>${rows}<button class="btn-small add" onclick="addOpt('${f._id}')">+ Add Option</button></div>`;
+      const rows=(f.opts||[]).map((o,i)=>'<div class="opt-row"><input value="'+esc(o)+'" oninput="updateOpt(\''+f._id+'\','+i+',this.value)"><button class="btn-small" onclick="removeOpt(\''+f._id+'\','+i+')" style="color:#dc2626">\u2715</button></div>').join('');
+      optsHtml='<div class="opts-section"><label>Options</label>'+rows+'<button class="btn-small add" onclick="addOpt(\''+f._id+'\')">+ Add Option</button></div>';
     }
-    const checkboxWarning=f.type==='checkbox'&&f.required&&(f.opts||[]).length>1
-      ?`<div style="background:#fef9c3;border:1px solid #eab308;border-radius:5px;padding:6px 9px;font-size:11px;color:#854d0e;display:flex;align-items:flex-start;gap:6px"><span style="flex-shrink:0">⚠️</span><span>Having <strong>Required</strong> toggled on will require the user to select <strong>all</strong> options, not just one.</span></div>`
+
+    const checkboxWarning=(f.type==='checkbox'&&f.required&&(f.opts||[]).length>1)
+      ?'<div style="background:#fef9c3;border:1px solid #eab308;border-radius:5px;padding:6px 9px;font-size:11px;color:#854d0e;display:flex;align-items:flex-start;gap:6px"><span style="flex-shrink:0">\u26a0\ufe0f</span><span>Having <strong>Required</strong> toggled on will require the user to select <strong>all</strong> options, not just one.</span></div>'
       :'';
-    const bodyHtml=isCaptcha
-      ?`<div class="card-body"><span style="font-size:11px;color:#888">Fixed field — no editable properties.</span></div>`
-      :isDivider
-      ?`<div class="card-body"><div class="prop-row"><span class="prop-label">Text</span><input class="prop-input" value="${esc(f.label)}" oninput="updateField('${f._id}','label',this.value)"></div></div>`
-      :isMultifile
-      ?`<div class="card-body"><div class="prop-row"><span class="prop-label">Width</span><select class="prop-input" onchange="updateField('${f._id}','width',this.value)"><option value="full" selected>Full</option></select></div>${optsHtml}</div>`
-      :`<div class="card-body">
-        <div class="prop-row">
-          <span class="prop-label">Label</span>
-          <input class="prop-input" value="${esc(f.label)}" oninput="updateField('${f._id}','label',this.value)">
-        </div>
-        ${isState?'':`<div class="prop-row"><span class="prop-label">ID</span><input class="prop-input" value="${esc(f.id)}" oninput="updateField('${f._id}','id',this.value)"></div>`}
-        <div class="prop-row">
-          <span class="prop-label">Width</span>
-          <select class="prop-input" onchange="updateField('${f._id}','width',this.value)">
-            <option value="full" ${f.width==='full'?'selected':''}>Full</option>
-            <option value="half" ${f.width==='half'?'selected':''}>Half</option>
-            <option value="third" ${f.width==='third'?'selected':''}>Third</option>
-          </select>
-          <div class="toggle-wrap">
-            <label class="toggle"><input type="checkbox" ${f.required?'checked':''} onchange="updateField('${f._id}','required',this.checked)"><span class="slider-t"></span></label>
-            <span class="toggle-label">Required</span>
-          </div>
-        </div>
-        ${optsHtml}
-        ${checkboxWarning}
-      </div>`;
-    card.innerHTML=`
-      <div class="card-header">
-        <span class="drag-handle">⠿</span>
-        <span class="card-type">${f.type}</span>
-        <div class="card-actions"><button class="icon-btn danger" onclick="removeField('${f._id}')">✕</button></div>
-      </div>
-      ${bodyHtml}`;
+
+    // Dup checkbox (not for captcha/divider/multifile)
+    const showDup=!isCaptcha&&!isDivider;
+    const dupHtml=showDup?'<label class="dup-check-wrap" onclick="event.stopPropagation()"><input type="checkbox" '+(f._dup?'checked':'')+' onchange="toggleDupCheck(\''+f._id+'\',this.checked)"> Duplicate</label>':'';
+
+    let bodyHtml;
+    if(isCaptcha){
+      bodyHtml='<div class="card-body"><span style="font-size:11px;color:#888">Fixed field \u2014 no editable properties.</span></div>';
+    } else if(isDivider){
+      bodyHtml='<div class="card-body"><div class="prop-row"><span class="prop-label">Text</span><input class="prop-input" value="'+esc(f.label)+'" oninput="updateField(\''+f._id+'\',\'label\',this.value)"></div></div>';
+    } else if(isMultifile){
+      bodyHtml='<div class="card-body"><div class="prop-row"><span class="prop-label">Width</span><select class="prop-input" onchange="updateField(\''+f._id+'\',\'width\',this.value)"><option value="full" selected>Full</option></select></div>'+optsHtml+'</div>';
+    } else {
+      bodyHtml='<div class="card-body"><div class="prop-row"><span class="prop-label">Label</span><input class="prop-input" value="'+esc(f.label)+'" oninput="updateField(\''+f._id+'\',\'label\',this.value)"></div>'
+        +(isState?'':'<div class="prop-row"><span class="prop-label">ID</span><input class="prop-input" value="'+esc(f.id)+'" oninput="updateField(\''+f._id+'\',\'id\',this.value)"></div>')
+        +'<div class="prop-row"><span class="prop-label">Width</span><select class="prop-input" onchange="updateField(\''+f._id+'\',\'width\',this.value)"><option value="full"'+(f.width==='full'?' selected':'')+'>Full</option><option value="half"'+(f.width==='half'?' selected':'')+'>Half</option><option value="third"'+(f.width==='third'?' selected':'')+'>Third</option></select>'
+        +'<div class="toggle-wrap"><label class="toggle"><input type="checkbox" '+(f.required?'checked':'')+' onchange="updateField(\''+f._id+'\',\'required\',this.checked)"><span class="slider-t"></span></label><span class="toggle-label">Required</span></div></div>'
+        +optsHtml+checkboxWarning+'</div>';
+    }
+
+    card.innerHTML='<div class="card-header"><span class="drag-handle">\u28bf</span><span class="card-type">'+f.type+'</span><div class="card-actions">'+dupHtml+'<button class="icon-btn danger" onclick="removeField(\''+f._id+'\')">\u2715</button></div></div>'+bodyHtml;
     list.appendChild(card);
   });
+
   const capBtn=document.getElementById('btn-captcha');
   if(capBtn) capBtn.style.opacity=fields.some(f=>f.type==='captcha')?'0.4':'1';
   const mfBtn=document.getElementById('btn-multifile');
   if(mfBtn) mfBtn.style.opacity=fields.some(f=>f.type==='multifile')?'0.4':'1';
-  renderCode();checkDuplicateIds();
-}
 
-function esc(s=''){return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+  updateDupFab();
+  renderCode();
+  checkDuplicateIds();
+}
 
 function buildFieldCode(f){
   const reqAttr=f.required?' required="required"':'';
@@ -632,187 +665,81 @@ function buildFieldCode(f){
     case 'text':case 'tel':case 'email':{
       const type=f.type==='tel'?'tel':f.type==='email'?'email':'text';
       let extras='';
-      if(type==='tel') extras=`\n\t\t\t\t\tpattern="\\(\\d{3}\\) \\d{3}-\\d{4}" class="phone-mask"`;
-      if(type==='email') extras=`\n\t\t\t\t\tpattern="[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$"`;
-      let valMiss=`\n\t\t\t\t<div class="validation" for="{ClientID:${id}}" data-type="valueMissing">\n\t\t\t\t\tPlease enter your ${label.toLowerCase()}.\n\t\t\t\t</div>`;
-      let valMism=type==='tel'?`\n\t\t\t\t<div class="validation" for="{ClientID:${id}}" data-type="typeMismatch">\n\t\t\t\t\tThis isn't a valid phone number.\n\t\t\t\t</div>`:type==='email'?`\n\t\t\t\t<div class="validation" for="{ClientID:${id}}" data-type="typeMismatch">\n\t\t\t\t\tThis isn't a valid email address.\n\t\t\t\t</div>`:'';
-      return `\t\t\t<li class="${w}">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label for="{ClientID:${id}}">${label}</label>\n\t\t\t\t\t<input${reqAttr} type="${type}" id="${id}"${extras} icoral="Coral.Controls.Form.Input" e-ondatabinding="Coral.Dynamic.Bind">${valMiss}${valMism}\n\t\t\t\t</div>\n\t\t\t</li>`;
+      if(type==='tel') extras='\n\t\t\t\t\tpattern="\\(\\d{3}\\) \\d{3}-\\d{4}" class="phone-mask"';
+      if(type==='email') extras='\n\t\t\t\t\tpattern="[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$"';
+      const valMiss='\n\t\t\t\t<div class="validation" for="{ClientID:'+id+'}" data-type="valueMissing">\n\t\t\t\t\tPlease enter your '+label.toLowerCase()+'.\n\t\t\t\t</div>';
+      const valMism=type==='tel'?'\n\t\t\t\t<div class="validation" for="{ClientID:'+id+'}" data-type="typeMismatch">\n\t\t\t\t\tThis isn\'t a valid phone number.\n\t\t\t\t</div>':type==='email'?'\n\t\t\t\t<div class="validation" for="{ClientID:'+id+'}" data-type="typeMismatch">\n\t\t\t\t\tThis isn\'t a valid email address.\n\t\t\t\t</div>':'';
+      return '\t\t\t<li class="'+w+'">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label for="{ClientID:'+id+'">'+label+'</label>\n\t\t\t\t\t<input'+reqAttr+' type="'+type+'" id="'+id+'"'+extras+' icoral="Coral.Controls.Form.Input" e-ondatabinding="Coral.Dynamic.Bind">'+valMiss+valMism+'\n\t\t\t\t</div>\n\t\t\t</li>';
     }
     case 'address':
-      return `\t\t\t<li class="${w}">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label for="{ClientID:${id}}">${label}</label>\n\t\t\t\t\t<input type="text" id="${id}" icoral="Coral.Controls.Form.Input" e-ondatabinding="Coral.Dynamic.Bind" data-ga-search="fulladdress">\n\t\t\t\t\t<input class="hd" id="GoogleAddress" type="checkbox" required="required" data-ga-target="googleaddress">\n\t\t\t\t\t<div class="validation" for="{ClientID:GoogleAddress}" data-type="valueMissing">\n\t\t\t\t\t\tPlease lookup your address.\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</li>`;
+      return '\t\t\t<li class="'+w+'">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label for="{ClientID:'+id+'">'+label+'</label>\n\t\t\t\t\t<input type="text" id="'+id+'" icoral="Coral.Controls.Form.Input" e-ondatabinding="Coral.Dynamic.Bind" data-ga-search="fulladdress">\n\t\t\t\t\t<input class="hd" id="GoogleAddress" type="checkbox" required="required" data-ga-target="googleaddress">\n\t\t\t\t\t<div class="validation" for="{ClientID:GoogleAddress}" data-type="valueMissing">\n\t\t\t\t\t\tPlease lookup your address.\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</li>';
     case 'state':
-      return `\t\t\t<li class="sel ${w}">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label for="{ClientID:State}">State</label>\n\t\t\t\t\t<select id="State" icoral="Coral.Controls.Form.Select"${reqAttr} p-properties="{\n\t\t\t\t\t\t  datasource: { from: 'Systems.dbo.UI_States', orderby: 'StateName' }\n\t\t\t\t\t  }">\n\t\t\t\t\t  <option value=""></option>\n\t\t\t\t\t  <option value="{StateName}" p-template="Item">{StateName}</option>\n\t\t\t\t\t</select>\n\t\t\t\t\t<svg role="presentation" data-use="arrow_down.24"></svg>\n\t\t\t\t\t<div class="validation" for="{ClientID:State}" data-type="valueMissing">\n\t\t\t\t\t\t\tPlease make a selection.\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</li>`;
+      return '\t\t\t<li class="sel '+w+'">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label for="{ClientID:State}">State</label>\n\t\t\t\t\t<select id="State" icoral="Coral.Controls.Form.Select"'+reqAttr+' p-properties="{\n\t\t\t\t\t\t  datasource: { from: \'Systems.dbo.UI_States\', orderby: \'StateName\' }\n\t\t\t\t\t  }">\n\t\t\t\t\t  <option value=""></option>\n\t\t\t\t\t  <option value="{StateName}" p-template="Item">{StateName}</option>\n\t\t\t\t\t</select>\n\t\t\t\t\t<svg role="presentation" data-use="arrow_down.24"></svg>\n\t\t\t\t\t<div class="validation" for="{ClientID:State}" data-type="valueMissing">\n\t\t\t\t\t\t\tPlease make a selection.\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</li>';
     case 'zip':
-      return `\t\t\t<li class="${w}">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label for="{ClientID:${id}}">${label}</label>\n\t\t\t\t\t<input${reqAttr} type="text" pattern="\\d{5}" maxlength="5" id="${id}" icoral="Coral.Controls.Form.Input" e-ondatabinding="Coral.Dynamic.Bind">\n\t\t\t\t\t<div class="validation" for="{ClientID:${id}}" data-type="valueMissing">\n\t\t\t\t\t\tPlease enter your Zip.\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</li>`;
+      return '\t\t\t<li class="'+w+'">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label for="{ClientID:'+id+'">'+label+'</label>\n\t\t\t\t\t<input'+reqAttr+' type="text" pattern="\\d{5}" maxlength="5" id="'+id+'" icoral="Coral.Controls.Form.Input" e-ondatabinding="Coral.Dynamic.Bind">\n\t\t\t\t\t<div class="validation" for="{ClientID:'+id+'}" data-type="valueMissing">\n\t\t\t\t\t\tPlease enter your Zip.\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</li>';
     case 'message':
-      return `\t\t\t<li class="msg ${w}">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label for="{ClientID:${id}}">${label}</label>\n\t\t\t\t\t<textarea${reqAttr} type="text" id="${id}" icoral="Coral.Controls.Form.Input" e-ondatabinding="Coral.Dynamic.Bind"></textarea>\n\t\t\t\t\t<div class="validation" for="{ClientID:${id}}" data-type="valueMissing">\n\t\t\t\t\t\tPlease enter a message.\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</li>`;
+      return '\t\t\t<li class="msg '+w+'">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label for="{ClientID:'+id+'">'+label+'</label>\n\t\t\t\t\t<textarea'+reqAttr+' type="text" id="'+id+'" icoral="Coral.Controls.Form.Input" e-ondatabinding="Coral.Dynamic.Bind"></textarea>\n\t\t\t\t\t<div class="validation" for="{ClientID:'+id+'}" data-type="valueMissing">\n\t\t\t\t\t\tPlease enter a message.\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</li>';
     case 'checkbox':{
-      const items=(f.opts||[]).map(o=>`\t\t\t\t\t\t<li>\n\t\t\t\t\t\t\t<div class="input-mark input-text flex-middle-ceiling">\n\t\t\t\t\t\t\t\t<input type="checkbox" value="${o}">\n\t\t\t\t\t\t\t\t<label for="{ClientID:${id}}" class="replace"></label>\n\t\t\t\t\t\t\t\t<label>${o}</label>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</li>`).join('\n');
-      return `\t\t\t<li class="checkbox ${w}">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<p class="optional-checkbox-label">${label}</p>\n\t\t\t\t\t<ul id="${id}" icoral="Coral.Controls.Form.Select"${reqAttr}>\n${items}\n\t\t\t\t\t</ul>\n\t\t\t\t\t<div class="validation" for="{ClientID:${id}}" data-type="valueMissing">\n\t\t\t\t\tPlease make a selection.\n\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</li>`;
+      const items=(f.opts||[]).map(o=>'\t\t\t\t\t\t<li>\n\t\t\t\t\t\t\t<div class="input-mark input-text flex-middle-ceiling">\n\t\t\t\t\t\t\t\t<input type="checkbox" value="'+o+'">\n\t\t\t\t\t\t\t\t<label for="{ClientID:'+id+'}" class="replace"></label>\n\t\t\t\t\t\t\t\t<label>'+o+'</label>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</li>').join('\n');
+      return '\t\t\t<li class="checkbox '+w+'">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<p class="optional-checkbox-label">'+label+'</p>\n\t\t\t\t\t<ul id="'+id+'" icoral="Coral.Controls.Form.Select"'+reqAttr+'>\n'+items+'\n\t\t\t\t\t</ul>\n\t\t\t\t\t<div class="validation" for="{ClientID:'+id+'}" data-type="valueMissing">\n\t\t\t\t\tPlease make a selection.\n\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</li>';
     }
     case 'radio':{
-      const items=(f.opts||[]).map(o=>`\t\t\t\t\t\t<li>\n\t\t\t\t\t\t\t<div class="input-mark input-text flex-middle-ceiling">\n\t\t\t\t\t\t\t\t<input type="radio" value="${o}">\n\t\t\t\t\t\t\t\t<label for="{ClientID:${id}}" class="replace"></label>\n\t\t\t\t\t\t\t\t<label>${o}</label>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</li>`).join('\n');
-      return `\t\t\t<li class="radio ${w} contact-method">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<p class="optional-radio-label" style="font-weight: 900;">${label}</p>\n\t\t\t\t\t<ul id="${id}" icoral="Coral.Controls.Form.Select"${reqAttr}>\n${items}\n\t\t\t\t\t</ul>\n\t\t\t\t\t<div class="validation" for="{ClientID:${id}}" data-type="valueMissing">\n\t\t\t\t\tPlease make a selection.\n\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</li>`;
+      const items=(f.opts||[]).map(o=>'\t\t\t\t\t\t<li>\n\t\t\t\t\t\t\t<div class="input-mark input-text flex-middle-ceiling">\n\t\t\t\t\t\t\t\t<input type="radio" value="'+o+'">\n\t\t\t\t\t\t\t\t<label for="{ClientID:'+id+'}" class="replace"></label>\n\t\t\t\t\t\t\t\t<label>'+o+'</label>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</li>').join('\n');
+      return '\t\t\t<li class="radio '+w+' contact-method">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<p class="optional-radio-label" style="font-weight: 900;">'+label+'</p>\n\t\t\t\t\t<ul id="'+id+'" icoral="Coral.Controls.Form.Select"'+reqAttr+'>\n'+items+'\n\t\t\t\t\t</ul>\n\t\t\t\t\t<div class="validation" for="{ClientID:'+id+'}" data-type="valueMissing">\n\t\t\t\t\tPlease make a selection.\n\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</li>';
     }
     case 'select':{
-      const items=(f.opts||[]).map(o=>`\t\t\t\t\t<option value="${o}">${o}</option>`).join('\n');
-      return `\t\t\t<li class="sel ${w}">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label for="{ClientID:${id}}">${label}</label>\n\t\t\t\t\t<select${reqAttr} id="${id}" icoral="Coral.Controls.Form.Select">\n\t\t\t\t\t\t<option value=""></option>\n${items}\n\t\t\t\t\t</select>\n\t\t\t\t\t<svg role="presentation" data-use="arrow_down.24"></svg>\n\t\t\t\t\t<div class="validation" for="{ClientID:${id}}" data-type="valueMissing">\n\t\t\t\t\t\tPlease make a selection.\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</li>`;
+      const items=(f.opts||[]).map(o=>'\t\t\t\t\t<option value="'+o+'">'+o+'</option>').join('\n');
+      return '\t\t\t<li class="sel '+w+'">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label for="{ClientID:'+id+'">'+label+'</label>\n\t\t\t\t\t<select'+reqAttr+' id="'+id+'" icoral="Coral.Controls.Form.Select">\n\t\t\t\t\t\t<option value=""></option>\n'+items+'\n\t\t\t\t\t</select>\n\t\t\t\t\t<svg role="presentation" data-use="arrow_down.24"></svg>\n\t\t\t\t\t<div class="validation" for="{ClientID:'+id+'}" data-type="valueMissing">\n\t\t\t\t\t\tPlease make a selection.\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</li>';
     }
     case 'multifile':{
       const moreLabel=f.uploadMoreLabel||'Upload another file';
       const total=(f.extraCount||1)+1;
       const buildBox=(n,isFirst)=>{
-        const fileId=n===1?'FileUpload':`FileUpload${n}`;
-        const showId=`ShowFile${n+1}`;
-        const savePath=n===1?`/documents/photos/FileUpload/`:`/documents/photos/FileUpload${n}/`;
+        const fileId=n===1?'FileUpload':'FileUpload'+n;
+        const showId='ShowFile'+(n+1);
+        const savePath=n===1?'/documents/photos/FileUpload/':'/documents/photos/FileUpload'+n+'/';
         const hasChk=n<total;
-        const chkHtml=hasChk?`\n\t\t\t<li class="checkbox ">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<ul id="${showId}">\n\t\t\t\t\t\t<li>\n\t\t\t\t\t\t\t<div class="input-mark input-text flex-middle-ceiling">\n\t\t\t\t\t\t\t\t<input type="checkbox" value="" class="show-file">\n\t\t\t\t\t\t\t\t<label for="{ClientID:${showId}}" class="replace"></label>\n\t\t\t\t\t\t\t\t<label>${moreLabel}</label>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</li>\n\t\t\t\t\t</ul>\n\t\t\t\t</div>\n\t\t\t</li>`:'';
-        const liHtml=`\t\t\t<li class="full">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label for="{ClientID:${fileId}}">${label}</label>\n\t\t\t\t\t<input id="${fileId}" accept="image/*,.pdf,.doc,.docx, png, jpg, jpeg" type="file" placeholder="" p-savepath="${savePath}" icoral="Coral.Controls.Form.File" e-ondatabinding="Coral.Dynamic.Bind" p-remote="true">\n\t\t\t\t</div>\n\t\t\t</li>${chkHtml}`;
-        return `\t\t\t<div class="${isFirst?'full':'file-box hidden full'}">\n${liHtml}\n\t\t\t</div>`;
+        const chkHtml=hasChk?'\n\t\t\t<li class="checkbox ">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<ul id="'+showId+'">\n\t\t\t\t\t\t<li>\n\t\t\t\t\t\t\t<div class="input-mark input-text flex-middle-ceiling">\n\t\t\t\t\t\t\t\t<input type="checkbox" value="" class="show-file">\n\t\t\t\t\t\t\t\t<label for="{ClientID:'+showId+'}" class="replace"></label>\n\t\t\t\t\t\t\t\t<label>'+moreLabel+'</label>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</li>\n\t\t\t\t\t</ul>\n\t\t\t\t</div>\n\t\t\t</li>':'';
+        const liHtml='\t\t\t<li class="full">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label for="{ClientID:'+fileId+'">'+label+'</label>\n\t\t\t\t\t<input id="'+fileId+'" accept="image/*,.pdf,.doc,.docx, png, jpg, jpeg" type="file" placeholder="" p-savepath="'+savePath+'" icoral="Coral.Controls.Form.File" e-ondatabinding="Coral.Dynamic.Bind" p-remote="true">\n\t\t\t\t</div>\n\t\t\t</li>'+chkHtml;
+        return '\t\t\t<div class="'+(isFirst?'full':'file-box hidden full')+'">\n'+liHtml+'\n\t\t\t</div>';
       };
       return Array.from({length:total},(_,i)=>buildBox(i+1,i===0)).join('\n');
     }
     case 'divider':
-      return `\t\t\t<h2 class="form-divider ta_ mrg_tp-30 mrg_bt-30">${label}</h2>`;
+      return '\t\t\t<h2 class="form-divider ta_ mrg_tp-30 mrg_bt-30">'+label+'</h2>';
     case 'captcha':
-      return `\t\t\t<li class="captcha full">\n\t\t\t\t<div class="verify-cont">\n\t\t\t\t\t<span class="field-cap"></span>\n\t\t\t\t</div>\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label class="contactlabel captcha" for="Verification">🛡️ Please enter the above verification code:</label>\n\t\t\t\t\t<input required class="verification" type="text" autocomplete="off">\n\t\t\t\t</div>\n\t\t\t</li>`;
+      return '\t\t\t<li class="captcha full">\n\t\t\t\t<div class="verify-cont">\n\t\t\t\t\t<span class="field-cap"></span>\n\t\t\t\t</div>\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label class="contactlabel captcha" for="Verification">\uD83D\uDEE1\uFE0F Please enter the above verification code:</label>\n\t\t\t\t\t<input required class="verification" type="text" autocomplete="off">\n\t\t\t\t</div>\n\t\t\t</li>';
     case 'date':
-      return `\t\t\t<li class="${w} sel date">\n\t\t\t\t<div class="flex-spaced-between-auto-responsive" id="${id}" icoral="Coral.Controls.Form.Select" p-merge="{0}" e-ondatabinding="Coral.Dynamic.Bind">\n\t\t\t\t\t<div class="input-text full relative date">\n\t\t\t\t\t\t<a href="javascript:void('Select Date')" tabindex="-1" aria-label="Select Next Date"></a>\n\t\t\t\t\t\t<svg data-use="calendar.24"></svg>\n\t\t\t\t\t\t<input type="date" placeholder=""${reqAttr}>\n\t\t\t\t\t\t<label class="hide" for="{ClientID:${id}}">${label}</label>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</li>`;
+      return '\t\t\t<li class="'+w+' sel date">\n\t\t\t\t<div class="flex-spaced-between-auto-responsive" id="'+id+'" icoral="Coral.Controls.Form.Select" p-merge="{0}" e-ondatabinding="Coral.Dynamic.Bind">\n\t\t\t\t\t<div class="input-text full relative date">\n\t\t\t\t\t\t<a href="javascript:void(\'Select Date\')" tabindex="-1" aria-label="Select Next Date"></a>\n\t\t\t\t\t\t<svg data-use="calendar.24"></svg>\n\t\t\t\t\t\t<input type="date" placeholder=""'+reqAttr+'>\n\t\t\t\t\t\t<label class="hide" for="{ClientID:'+id+'">'+label+'</label>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</li>';
     case 'resume':
-      return `\t\t\t<li class="${w}">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label for="{ClientID:${id}}">${label}</label>\n\t\t\t\t\t<input id="${id}" accept="image/*,.pdf,.doc,.docx" type="file" placeholder="" p-savepath="/documents/resume/{ContactID}" icoral="Coral.Controls.Form.File" e-ondatabinding="Coral.Dynamic.Bind" p-remote="true">\n\t\t\t\t</div>\n\t\t\t</li>`;
+      return '\t\t\t<li class="'+w+'">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label for="{ClientID:'+id+'">'+label+'</label>\n\t\t\t\t\t<input id="'+id+'" accept="image/*,.pdf,.doc,.docx" type="file" placeholder="" p-savepath="/documents/resume/{ContactID}" icoral="Coral.Controls.Form.File" e-ondatabinding="Coral.Dynamic.Bind" p-remote="true">\n\t\t\t\t</div>\n\t\t\t</li>';
     default: return '';
   }
 }
 
 function checkDuplicateIds(){
   const seen={};
-  fields.forEach(f=>{const id=(f.id||'').trim();if(!id)return;seen[id]=(seen[id]||[]);seen[id].push(f._id)});
+  fields.forEach(f=>{const id=(f.id||'').trim();if(!id)return;seen[id]=(seen[id]||[]);seen[id].push(f._id);});
   const dups=Object.entries(seen).filter(([,a])=>a.length>1).map(([id])=>id);
-  const flag=document.getElementById('dup-flag');
-  const msg=document.getElementById('dup-msg');
-  if(dups.length){msg.textContent=`Duplicate ID${dups.length>1?'s':''} detected: ${dups.join(', ')} — each field must have a unique ID.`;flag.style.display='flex';}
+  const flag=document.getElementById('dup-flag'),msg=document.getElementById('dup-msg');
+  if(dups.length){msg.textContent='Duplicate ID'+(dups.length>1?'s':'')+' detected: '+dups.join(', ')+' \u2014 each field must have a unique ID.';flag.style.display='flex';}
   else flag.style.display='none';
 }
 
 function renderCode(){
   const hasMultifile=fields.some(f=>f.type==='multifile');
-  const multifileStyles=hasMultifile?`\n<style>\n.file-box.hidden {\n  display: none !important;\n}\n</style>`:'';
-  const multifileScript=hasMultifile?`\n<script>\n\tlet showFile = document.querySelectorAll('.show-file');\n\tlet fileBox = document.querySelectorAll('.file-box');\n\tfor (let i=0; i < showFile.length; i++) {\n\t\tshowFile[i].addEventListener('change', () => {\n\t\t\tif (showFile[i].checked) {\n\t\t\t\tfileBox[i].classList.remove('hidden');\n\t\t\t} else {\n\t\t\t\tfileBox[i].classList.add('hidden');\n\t\t\t}\n\t\t})\n\t}\n<\/script>`:'';
+  const multifileStyles=hasMultifile?'\n<style>\n.file-box.hidden {\n  display: none !important;\n}\n</style>':'';
+  const multifileScript=hasMultifile?'\n<script>\n\tlet showFile = document.querySelectorAll(\'.show-file\');\n\tlet fileBox = document.querySelectorAll(\'.file-box\');\n\tfor (let i=0; i < showFile.length; i++) {\n\t\tshowFile[i].addEventListener(\'change\', () => {\n\t\t\tif (showFile[i].checked) {\n\t\t\t\tfileBox[i].classList.remove(\'hidden\');\n\t\t\t} else {\n\t\t\t\tfileBox[i].classList.add(\'hidden\');\n\t\t\t}\n\t\t})\n\t}\n<\/script>':'';
   const hasDivider=fields.some(f=>f.type==='divider');
-  const dividerStyles=hasDivider?`\n<style>\n.form-divider {\n   width: 100%;\n   display: block;\n}\n</style>`:'';
+  const dividerStyles=hasDivider?'\n<style>\n.form-divider {\n   width: 100%;\n   display: block;\n}\n</style>':'';
   const hasCaptcha=fields.some(f=>f.type==='captcha');
-  const captchaStyles=hasCaptcha?`\n<style>
-\tspan.field-cap {
-\t    border: 3px solid #272727;
-\t    padding: 0.1em 0.4em;
-\t    border-radius: 0.3em;
-\t    display: inline-block;
-\t    line-height: 1.3em;
-\t    font-size: 1.2em;
-\t    background-color: #ffffff;
-\t    color: #272727;
-\t    margin: 0.6em 0 0.5em;
-\t}
-\tform button[disabled] {
-\t    opacity: 0.5;
-\t}
-\t.verify-cont {
-\t\ttext-align: left;
-\t}
-</style>
-<script>
-\t\t\tlet captcha = '';
-\t\t\tlet single = '';
-\t\t\tlet captchaField = document.querySelectorAll('.field-cap');
-\t\t\tlet verificationField = document.querySelectorAll('.captcha .verification');
-\t\t\tlet submitButton = document.querySelectorAll('.form-btn');
-\t\t\tfunction getLetters() {
-\t\t\t\tcaptcha = Math.random()
-\t\t\t\t\t.toString(36)
-\t\t\t\t\t.toUpperCase()
-\t\t\t\t\t.substring(2, 7);
-\t\t\t\tsingle = captcha.split('');
-\t\t\t\tif (!!captcha.match('0|O|1|A|E|O|U|I|L')) {
-\t\t\t\t\tgetLetters();
-\t\t\t\t}
-\t\t\t}
-\t\t\tfunction placeCaps() {
-\t\t\t\tgetLetters();
-\t\t\t\tcaptchaField.forEach((cfield) => {
-\t\t\t\t\tcfield.innerText = captcha;
-\t\t\t\t});
-\t\t\t}
-\t\t\tplaceCaps();
-\t\t\tfor (let i=0; i < verificationField.length; i++) {
-\t\t\t\tverificationField[i].addEventListener('change', ()=> {
-\t\t\t\t\tif (verificationField[i].value.toUpperCase() === captchaField[i].innerText) {
-\t\t\t\t\t\tsubmitButton[i].removeAttribute('disabled');
-\t\t\t\t\t\tsubmitButton[i].classList.add('active');
-\t\t\t\t\t}
-\t\t\t\t})
-\t\t\t}
-<\/script>`:'';
+  const captchaStyles=hasCaptcha?'\n<style>\n\tspan.field-cap {\n\t    border: 3px solid #272727;\n\t    padding: 0.1em 0.4em;\n\t    border-radius: 0.3em;\n\t    display: inline-block;\n\t    line-height: 1.3em;\n\t    font-size: 1.2em;\n\t    background-color: #ffffff;\n\t    color: #272727;\n\t    margin: 0.6em 0 0.5em;\n\t}\n\tform button[disabled] {\n\t    opacity: 0.5;\n\t}\n\t.verify-cont {\n\t\ttext-align: left;\n\t}\n</style>\n<script>\n\t\t\tlet captcha = \'\';\n\t\t\tlet single = \'\';\n\t\t\tlet captchaField = document.querySelectorAll(\'.field-cap\');\n\t\t\tlet verificationField = document.querySelectorAll(\'.captcha .verification\');\n\t\t\tlet submitButton = document.querySelectorAll(\'.form-btn\');\n\t\t\tfunction getLetters() {\n\t\t\t\tcaptcha = Math.random()\n\t\t\t\t\t.toString(36)\n\t\t\t\t\t.toUpperCase()\n\t\t\t\t\t.substring(2, 7);\n\t\t\t\tsingle = captcha.split(\'\');\n\t\t\t\tif (!!captcha.match(\'0|O|1|A|E|O|U|I|L\')) {\n\t\t\t\t\tgetLetters();\n\t\t\t\t}\n\t\t\t}\n\t\t\tfunction placeCaps() {\n\t\t\t\tgetLetters();\n\t\t\t\tcaptchaField.forEach((cfield) => {\n\t\t\t\t\tcfield.innerText = captcha;\n\t\t\t\t});\n\t\t\t}\n\t\t\tplaceCaps();\n\t\t\tfor (let i=0; i < verificationField.length; i++) {\n\t\t\t\tverificationField[i].addEventListener(\'change\', ()=> {\n\t\t\t\t\tif (verificationField[i].value.toUpperCase() === captchaField[i].innerText) {\n\t\t\t\t\t\tsubmitButton[i].removeAttribute(\'disabled\');\n\t\t\t\t\t\tsubmitButton[i].classList.add(\'active\');\n\t\t\t\t\t}\n\t\t\t\t})\n\t\t\t}\n<\/script>':'';
   const needsStyles=fields.some(f=>['checkbox','radio','date'].includes(f.type));
   const hasAddress=fields.some(f=>f.type==='address');
-  const addressBlock=hasAddress?`\t<if field="{F:lower:Sub:LeadIsCalled}" equals="customer">
-\t\t<input id="StreetAddress" type="hidden" icoral="Coral.Controls.Form.Input" e-ondatabinding="Coral.Dynamic.Bind" data-ga-target="address">
-\t\t<input id="City" type="hidden" icoral="Coral.Controls.Form.Input" e-ondatabinding="Coral.Dynamic.Bind" data-ga-target="city">
-\t\t<input id="State" type="hidden" icoral="Coral.Controls.Form.Input" e-ondatabinding="Coral.Dynamic.Bind" data-ga-target="state">
-\t\t<input id="ZipCode" type="hidden" icoral="Coral.Controls.Form.Input" e-ondatabinding="Coral.Dynamic.Bind" data-ga-target="zipcode">
-\t</if>\n`:'';
+  const addressBlock=hasAddress?'\t<if field="{F:lower:Sub:LeadIsCalled}" equals="customer">\n\t\t<input id="StreetAddress" type="hidden" icoral="Coral.Controls.Form.Input" e-ondatabinding="Coral.Dynamic.Bind" data-ga-target="address">\n\t\t<input id="City" type="hidden" icoral="Coral.Controls.Form.Input" e-ondatabinding="Coral.Dynamic.Bind" data-ga-target="city">\n\t\t<input id="State" type="hidden" icoral="Coral.Controls.Form.Input" e-ondatabinding="Coral.Dynamic.Bind" data-ga-target="state">\n\t\t<input id="ZipCode" type="hidden" icoral="Coral.Controls.Form.Input" e-ondatabinding="Coral.Dynamic.Bind" data-ga-target="zipcode">\n\t</if>\n':'';
   const fieldLines=fields.map(f=>buildFieldCode(f)).filter(Boolean).join('\n');
-  const consent=`\t\t\t<li class="full">
-\t\t\t\t<div class="inp-mrk">
-\t\t\t\t\t<input type="hidden" id="Consent" required="" checked="">
-\t\t\t\t\t<small>By submitting, you agree to receive text messages from {Sub:BusinessName} at the number provided, including those related to your inquiry, follow-ups, and review requests, via automated technology. 
-Consent is not a condition of purchase. Msg &amp; data rates may apply. Msg frequency may vary. Reply STOP to cancel or HELP for assistance. 
-<a href="https://www.scorpion.co/acceptable-use-policy/" target="_blank" rel="nofollow"><u>Acceptable Use Policy</u></a></small>
-\t\t\t\t</div>
-\t\t\t</li>`;
-  const code=`<div id="@@ElementID@@Form" icoral="Coral.Controls.Repeater" p-properties="{
-\t\tinserting: true,
-\t\tdatasource: { into: 'Systems.dbo.Contact_Forms' },
-\t\tbeforeinsert: [
-\t\t\t{ action: 'spam', noterms: false }
-\t\t],
-\t\tafterinsert: [
-\t\t\t{ action: 'email', emailtemplate: '78' },
-\t\t\t{ action: 'email', emailtemplate: '62' }
-\t\t],
-\t\taftercompleted: [
-\t\t\t{ action: 'redirect', to: '{SystemPage:148}' }
-\t\t]
-\t}">
-\t<link href="/common/make/css-mobile/tools/flex-gas-sml.css" rel="stylesheet" type="text/css" p-place="true"/>
-\t<link href="/includes/forms.css" rel="stylesheet" type="text/css" p-place="true"/>
-\t<noscript type="text/javascript" async="async" src="/common/usc/p/phone-format.js" p-place="true"></noscript>
-\t<if field="{F:lower:Sub:LeadIsCalled}" equals="customer">
-\t\t<noscript type="text/javascript" p-place="true">
-\t\t    var @@ElementID@@frm = document.getElementById( '@@ElementID@@Form' );
-\t\t    require2( '/common/usc/p/utils.js', function() {
-\t\t    \tUSC.onVisible( @@ElementID@@frm, -0.5, function() {
-\t\t    \trequire2( '/common/usc/p/google-address-lookup.js', function() {
-\t\t    \t        USC.googleAddressLookup( @@ElementID@@frm )
-\t\t    \t    });
-\t\t    \t});
-\t\t    });
-\t\t</noscript>
-\t</if>
-\t<fieldset>
-\t\t<ul class="@@ListClassList|flx-at-700-grd-sml@@">
-${fieldLines}
-${consent}
-\t\t</ul>
-\t</fieldset>
-${addressBlock}\t<input id="FFD6" type="hidden" icoral="Coral.Controls.Form.Input" e-ondatabinding="Coral.Dynamic.Bind">
-\t<app-component app-id="FormSubmit">
-\t\t<app-chunk name="ButtonVersion">@@ButtonVersion|v1@@</app-chunk>
-\t\t<app-chunk name="ButtonText">@@ButtonText|Send Message@@</app-chunk>
-\t\t<app-chunk name="ClassList">@@ButtonClassList@@</app-chunk>
-\t\t<app-chunk name="MarginTop">@@ButtonMarginTop|mrg_tp-40@@</app-chunk>
-\t</app-component>
-${needsStyles?STYLES:''}${dividerStyles}${multifileStyles}${captchaStyles}${multifileScript}
-</div>`;
+  const consent='\t\t\t<li class="full">\n\t\t\t\t<div class="inp-mrk">\n\t\t\t\t\t<input type="hidden" id="Consent" required="" checked="">\n\t\t\t\t\t<small>By submitting, you agree to receive text messages from {Sub:BusinessName} at the number provided, including those related to your inquiry, follow-ups, and review requests, via automated technology. \nConsent is not a condition of purchase. Msg &amp; data rates may apply. Msg frequency may vary. Reply STOP to cancel or HELP for assistance. \n<a href="https://www.scorpion.co/acceptable-use-policy/" target="_blank" rel="nofollow"><u>Acceptable Use Policy</u></a></small>\n\t\t\t\t</div>\n\t\t\t</li>';
+  const code='<div id="@@ElementID@@Form" icoral="Coral.Controls.Repeater" p-properties="{\n\t\tinserting: true,\n\t\tdatasource: { into: \'Systems.dbo.Contact_Forms\' },\n\t\tbeforeinsert: [\n\t\t\t{ action: \'spam\', noterms: false }\n\t\t],\n\t\tafterinsert: [\n\t\t\t{ action: \'email\', emailtemplate: \'78\' },\n\t\t\t{ action: \'email\', emailtemplate: \'62\' }\n\t\t],\n\t\taftercompleted: [\n\t\t\t{ action: \'redirect\', to: \'{SystemPage:148}\' }\n\t\t]\n\t}">\n\t<link href="/common/make/css-mobile/tools/flex-gas-sml.css" rel="stylesheet" type="text/css" p-place="true"/>\n\t<link href="/includes/forms.css" rel="stylesheet" type="text/css" p-place="true"/>\n\t<noscript type="text/javascript" async="async" src="/common/usc/p/phone-format.js" p-place="true"></noscript>\n\t<if field="{F:lower:Sub:LeadIsCalled}" equals="customer">\n\t\t<noscript type="text/javascript" p-place="true">\n\t\t    var @@ElementID@@frm = document.getElementById( \'@@ElementID@@Form\' );\n\t\t    require2( \'/common/usc/p/utils.js\', function() {\n\t\t    \tUSC.onVisible( @@ElementID@@frm, -0.5, function() {\n\t\t    \trequire2( \'/common/usc/p/google-address-lookup.js\', function() {\n\t\t    \t        USC.googleAddressLookup( @@ElementID@@frm )\n\t\t    \t    });\n\t\t    \t});\n\t\t    });\n\t\t</noscript>\n\t</if>\n\t<fieldset>\n\t\t<ul class="@@ListClassList|flx-at-700-grd-sml@@">\n'+fieldLines+'\n'+consent+'\n\t\t</ul>\n\t</fieldset>\n'+addressBlock+'\t<input id="FFD6" type="hidden" icoral="Coral.Controls.Form.Input" e-ondatabinding="Coral.Dynamic.Bind">\n\t<app-component app-id="FormSubmit">\n\t\t<app-chunk name="ButtonVersion">@@ButtonVersion|v1@@</app-chunk>\n\t\t<app-chunk name="ButtonText">@@ButtonText|Send Message@@</app-chunk>\n\t\t<app-chunk name="ClassList">@@ButtonClassList@@</app-chunk>\n\t\t<app-chunk name="MarginTop">@@ButtonMarginTop|mrg_tp-40@@</app-chunk>\n\t</app-component>\n'+(needsStyles?STYLES:'')+dividerStyles+multifileStyles+captchaStyles+multifileScript+'\n</div>';
   document.getElementById('code-out').textContent=code;
 }
 
@@ -823,54 +750,30 @@ function renderPreview(){
     const label=f.label||'Label';
     const w=f.width||'full';
     switch(f.type){
-      case 'text':
-        html+=`<li class="${w}"><div class="input-text"><label>${label}</label><input type="text" disabled></div></li>`;break;
-      case 'tel':
-        html+=`<li class="${w}"><div class="input-text"><label>${label}</label><input type="tel" placeholder="(___) ___-____" disabled></div></li>`;break;
-      case 'email':
-        html+=`<li class="${w}"><div class="input-text"><label>${label}</label><input type="email" disabled></div></li>`;break;
-      case 'address':
-        html+=`<li class="${w}"><div class="input-text"><label>${label}</label><input type="text" placeholder="Enter a location" disabled></div></li>`;break;
-      case 'state':
-        html+=`<li class="sel ${w}"><div class="input-text"><label>State</label><select disabled><option value="">Select a state...</option></select><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 11L2 5h12z"/></svg></div></li>`;break;
-      case 'zip':
-        html+=`<li class="${w}"><div class="input-text"><label>${label}</label><input type="text" placeholder="00000" maxlength="5" disabled></div></li>`;break;
-      case 'message':
-        html+=`<li class="msg ${w}"><div class="input-text"><label>${label}</label><textarea disabled></textarea></div></li>`;break;
-      case 'checkbox':{
-        const opts=(f.opts||[]).map(o=>`<div class="input-mark"><input type="checkbox" disabled><label>${o}</label></div>`).join('');
-        html+=`<li class="${w}"><div class="input-text" style="border:none;padding-left:0"><p class="optional-checkbox-label">${label}</p>${opts}</div></li>`;break;
-      }
-      case 'radio':{
-        const opts=(f.opts||[]).map(o=>`<div class="input-mark"><input type="radio" disabled><label>${o}</label></div>`).join('');
-        html+=`<li class="${w}"><div class="input-text" style="border:none;padding-left:0"><p class="optional-radio-label" style="font-weight:900">${label}</p>${opts}</div></li>`;break;
-      }
-      case 'select':{
-        const opts=(f.opts||[]).map(o=>`<option>${o}</option>`).join('');
-        html+=`<li class="sel ${w}"><div class="input-text"><label>${label}</label><select disabled><option value=""></option>${opts}</select><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 11L2 5h12z"/></svg></div></li>`;break;
-      }
-      case 'date':
-        html+=`<li class="${w}"><div class="input-text"><label>${label}</label><input type="date" disabled></div></li>`;break;
-      case 'resume':
-        html+=`<li class="${w}"><div class="input-text"><label>${label}</label><input type="file" disabled></div></li>`;break;
+      case 'text': html+='<li class="'+w+'"><div class="input-text"><label>'+label+'</label><input type="text" disabled></div></li>';break;
+      case 'tel': html+='<li class="'+w+'"><div class="input-text"><label>'+label+'</label><input type="tel" placeholder="(___) ___-____" disabled></div></li>';break;
+      case 'email': html+='<li class="'+w+'"><div class="input-text"><label>'+label+'</label><input type="email" disabled></div></li>';break;
+      case 'address': html+='<li class="'+w+'"><div class="input-text"><label>'+label+'</label><input type="text" placeholder="Enter a location" disabled></div></li>';break;
+      case 'state': html+='<li class="sel '+w+'"><div class="input-text"><label>State</label><select disabled><option value="">Select a state...</option></select><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 11L2 5h12z"/></svg></div></li>';break;
+      case 'zip': html+='<li class="'+w+'"><div class="input-text"><label>'+label+'</label><input type="text" placeholder="00000" maxlength="5" disabled></div></li>';break;
+      case 'message': html+='<li class="msg '+w+'"><div class="input-text"><label>'+label+'</label><textarea disabled></textarea></div></li>';break;
+      case 'checkbox':{const opts=(f.opts||[]).map(o=>'<div class="input-mark"><input type="checkbox" disabled><label>'+o+'</label></div>').join('');html+='<li class="'+w+'"><div class="input-text" style="border:none;padding-left:0"><p class="optional-checkbox-label">'+label+'</p>'+opts+'</div></li>';break;}
+      case 'radio':{const opts=(f.opts||[]).map(o=>'<div class="input-mark"><input type="radio" disabled><label>'+o+'</label></div>').join('');html+='<li class="'+w+'"><div class="input-text" style="border:none;padding-left:0"><p class="optional-radio-label" style="font-weight:900">'+label+'</p>'+opts+'</div></li>';break;}
+      case 'select':{const opts=(f.opts||[]).map(o=>'<option>'+o+'</option>').join('');html+='<li class="sel '+w+'"><div class="input-text"><label>'+label+'</label><select disabled><option value=""></option>'+opts+'</select><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 11L2 5h12z"/></svg></div></li>';break;}
+      case 'date': html+='<li class="'+w+'"><div class="input-text"><label>'+label+'</label><input type="date" disabled></div></li>';break;
+      case 'resume': html+='<li class="'+w+'"><div class="input-text"><label>'+label+'</label><input type="file" disabled></div></li>';break;
       case 'multifile':{
         const moreLabel=f.uploadMoreLabel||'Upload another file';
         const total=(f.extraCount||1)+1;
-        html+=`<li class="full"><div class="input-text"><label>${label}</label><input type="file" disabled></div></li>`;
-        for(let i=2;i<=total;i++){
-          html+=`<li class="full"><div class="upload-more-row"><input type="checkbox" disabled>${moreLabel}</div></li>`;
-          html+=`<li class="full" style="display:none"><div class="input-text"><label>${label}</label><input type="file" disabled></div></li>`;
-        }
+        html+='<li class="full"><div class="input-text"><label>'+label+'</label><input type="file" disabled></div></li>';
+        for(let i=2;i<=total;i++){html+='<li class="full"><div class="upload-more-row"><input type="checkbox" disabled>'+moreLabel+'</div></li>';}
         break;
       }
-      case 'divider':
-        html+=`<h2 class="form-divider" style="width:100%;margin:8px 0">${label}</h2>`;break;
-      case 'captcha':
-        html+=`<li class="full"><div class="verify-cont"><span class="field-cap">Y9KWB</span></div><div class="input-text"><label>🛡️ Please enter the above verification code:</label><input type="text" disabled></div></li>`;break;
+      case 'divider': html+='<h2 class="form-divider" style="width:100%;margin:8px 0">'+label+'</h2>';break;
+      case 'captcha': html+='<li class="full"><div class="verify-cont"><span class="field-cap">Y9KWB</span></div><div class="input-text"><label>\uD83D\uDEE1\uFE0F Please enter the above verification code:</label><input type="text" disabled></div></li>';break;
     }
   });
-  html+=`<li class="full"><div class="inp-mrk"><small>By submitting, you agree to receive text messages from {BusinessName} at the number provided, including those related to your inquiry, follow-ups, and review requests, via automated technology. Consent is not a condition of purchase. Msg &amp; data rates may apply. Reply STOP to cancel or HELP for assistance. <a href="#">Acceptable Use Policy</a></small></div></li>`;
-  html+='</ul></fieldset><button class="preview-submit" disabled>Send Message</button>';
+  html+='<li class="full"><div class="inp-mrk"><small>By submitting, you agree to receive text messages from {BusinessName} at the number provided, including those related to your inquiry, follow-ups, and review requests, via automated technology. Consent is not a condition of purchase. Msg &amp; data rates may apply. Reply STOP to cancel or HELP for assistance. <a href="#">Acceptable Use Policy</a></small></div></li></ul></fieldset><button class="preview-submit" disabled>Send Message</button>';
   container.innerHTML=html;
 }
 
@@ -879,11 +782,11 @@ function copyCode(){
   const ta=document.createElement('textarea');
   ta.value=text;ta.style.cssText='position:fixed;top:0;left:0;opacity:0;pointer-events:none';
   document.body.appendChild(ta);ta.focus();ta.select();
-  try{document.execCommand('copy')}catch(e){}
+  try{document.execCommand('copy');}catch(e){}
   document.body.removeChild(ta);
   const btn=document.getElementById('copy-btn');
   btn.textContent='Copied!';btn.classList.add('copied');
-  setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied')},2000);
+  setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied');},2000);
 }
 
 init();
