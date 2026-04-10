@@ -809,7 +809,7 @@ function renderCode(){
   const mfSt=hasMF?'\n<style>\n.file-box.hidden { display: none !important; }\n</style>':'';
   const mfSc=hasMF?'\n<script>\n\tlet showFile=document.querySelectorAll(\'.show-file\');\n\tlet fileBox=document.querySelectorAll(\'.file-box\');\n\tfor(let i=0;i<showFile.length;i++){showFile[i].addEventListener(\'change\',()=>{if(showFile[i].checked){fileBox[i].classList.remove(\'hidden\');}else{fileBox[i].classList.add(\'hidden\');}})}\n<\/script>':'';
   const dvSt=hasDiv?'\n<style>\n.form-divider { width: 100%; display: block; }\n</style>':'';
-  const zoneSt=hasZones?'\n<style>\n.zone.hidden { display: none !important; width: 100%; }\n</style>':'';
+  const zoneSt=hasZones?'\n<style>\n.zone.hidden { display: none !important; width: 100%; } zone:{width: 100% !important}\n</style>':'';
 
   let zoneSc='';
   if(hasZones){
@@ -820,7 +820,7 @@ function renderCode(){
         const cf=fields.find(f=>f._id===z.condition.fieldId);if(!cf)return;
         const fieldId=cf.id,val=z.condition.value,zClass='zone-'+z.num;
         if(cf.type==='radio'){
-          js+='\tdocument.querySelectorAll(\'input[type="radio"]\').forEach(function(r){\n\t\tif(r.name&&r.name.indexOf("'+fieldId+'")>-1){\n\t\t\tr.addEventListener("change",function(){\n\t\t\t\tvar zone=document.querySelector(".'+zClass+'");if(!zone)return;\n\t\t\t\tif(this.value==="'+val+'")zone.classList.remove("hidden");else zone.classList.add("hidden");\n\t\t\t});\n\t\t}\n\t});\n';
+          js+='\tdocument.querySelectorAll(\'input[type="radio"]\').forEach(function(r){\n\t\tif(r.name&&r.name.indexOf("'+fieldId+'")>-1){\n\t\t\tr.adadEventListener("change",function(){\n\t\t\t\tvar zone=document.querySelector(".'+zClass+'");if(!zone)return;\n\t\t\t\tif(this.value==="'+val+'")zone.classList.remove("hidden");else zone.classList.add("hidden");\n\t\t\t});\n\t\t}\n\t});\n';
         } else if(cf.type==='checkbox'){
           js+='\tdocument.querySelectorAll(\'input[type="checkbox"]\').forEach(function(cb){\n\t\tif(cb.name&&cb.name.indexOf("'+fieldId+'")>-1&&cb.value==="'+val+'"){\n\t\t\tcb.addEventListener("change",function(){\n\t\t\t\tvar zone=document.querySelector(".'+zClass+'");if(!zone)return;\n\t\t\t\tif(this.checked)zone.classList.remove("hidden");else zone.classList.add("hidden");\n\t\t\t});\n\t\t}\n\t});\n';
         } else if(cf.type==='select'){
