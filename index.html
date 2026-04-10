@@ -809,7 +809,7 @@ function renderCode(){
   const mfSt=hasMF?'\n<style>\n.file-box.hidden { display: none !important; }\n</style>':'';
   const mfSc=hasMF?'\n<script>\n\tlet showFile=document.querySelectorAll(\'.show-file\');\n\tlet fileBox=document.querySelectorAll(\'.file-box\');\n\tfor(let i=0;i<showFile.length;i++){showFile[i].addEventListener(\'change\',()=>{if(showFile[i].checked){fileBox[i].classList.remove(\'hidden\');}else{fileBox[i].classList.add(\'hidden\');}})}\n<\/script>':'';
   const dvSt=hasDiv?'\n<style>\n.form-divider { width: 100%; display: block; }\n</style>':'';
-  const zoneSt=hasZones?'\n<style>\n.zone.hidden { display: none !important; width: 100%; } zone:{width: 100% !important}\n</style>':'';
+  const zoneSt=hasZones?'\n<style>\n.zone.hidden { display: none !important; width: 100%; } .zone:{width: 100% !important}\n</style>':'';
 
   let zoneSc='';
   if(hasZones){
