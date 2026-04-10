@@ -13,7 +13,6 @@ html,body{height:100%;overflow:hidden;font-family:system-ui,sans-serif;font-size
 .add-btn{background:#313244;border:none;color:#cdd6f4;padding:7px 10px;border-radius:6px;cursor:pointer;text-align:left;font-size:12px;display:flex;align-items:center;gap:7px;transition:background .15s}
 .add-btn:hover{background:#45475a}
 .add-btn svg{width:14px;height:14px;flex-shrink:0;opacity:.6}
-/* Required default toggle */
 #req-toggle-section{flex-shrink:0;border-top:1px solid #313244;padding:10px}
 #req-toggle-section h2{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6c7086;margin-bottom:8px}
 #req-toggle-row{display:flex;align-items:center;gap:8px}
@@ -24,10 +23,9 @@ html,body{height:100%;overflow:hidden;font-family:system-ui,sans-serif;font-size
 .tog-sl:before{content:'';position:absolute;width:12px;height:12px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
 .tog input:checked+.tog-sl{background:#7c3aed}
 .tog input:checked+.tog-sl:before{transform:translateX(14px)}
-/* Saved forms section */
 #saved-section{flex-shrink:0;border-top:1px solid #313244;padding:10px}
 #saved-section h2{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6c7086;margin-bottom:8px}
-#saved-list{display:flex;flex-direction:column;gap:4px;max-height:140px;overflow-y:auto}
+#saved-list{display:flex;flex-direction:column;gap:4px;max-height:120px;overflow-y:auto}
 .saved-item{display:flex;align-items:center;gap:4px;background:#313244;border-radius:6px;padding:5px 8px;cursor:pointer;transition:background .15s}
 .saved-item:hover{background:#3d3f52}
 .saved-item.active-form{background:#45475a;outline:1px solid #7c3aed33}
@@ -50,12 +48,23 @@ html,body{height:100%;overflow:hidden;font-family:system-ui,sans-serif;font-size
 #save-status{font-size:10px;color:#7c3aed;height:14px;margin-bottom:6px;align-self:flex-start;opacity:0;transition:opacity .3s}
 #save-status.visible{opacity:1}
 #fields-list{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;width:100%;max-width:100%}
+
+/* Zone styles */
+.zone-wrapper{width:100%;grid-column:span 6;margin-top:4px;position:relative}
+.zone-line{height:2px;background:#6366f1;width:100%;position:relative}
+.zone-line-label{position:absolute;right:4px;top:-16px;font-size:10px;color:#a0a0b0;user-select:none}
+.zone-line.bottom .zone-line-label{top:4px}
+.zone-inner{min-height:3rem;padding:4px 0;display:grid;grid-template-columns:repeat(6,1fr);gap:8px;width:100%}
+.zone-inner.drag-over-zone{background:rgba(99,102,241,.06);border-radius:4px}
+.zone-header{display:flex;align-items:center;justify-content:space-between;padding:4px 0 6px}
+.zone-label{font-size:11px;font-weight:600;color:#6366f1}
+.zone-del-btn{background:none;border:none;color:#aaa;cursor:pointer;font-size:12px;padding:2px 5px;border-radius:4px}
+.zone-del-btn:hover{background:#fee2e2;color:#dc2626}
+.zone-empty-hint{grid-column:span 6;font-size:11px;color:#bbb;text-align:center;padding:10px 0;pointer-events:none}
+
 .field-card{background:#fff;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden}
-.field-card.w-full{grid-column:span 6}
-.field-card.w-half{grid-column:span 3}
-.field-card.w-third{grid-column:span 2}
-.field-card.dragging{opacity:.4}
-.field-card.drag-over{border-color:#7c3aed;box-shadow:0 0 0 2px #7c3aed33}
+.field-card.w-full{grid-column:span 6}.field-card.w-half{grid-column:span 3}.field-card.w-third{grid-column:span 2}
+.field-card.dragging{opacity:.4}.field-card.drag-over{border-color:#7c3aed;box-shadow:0 0 0 2px #7c3aed33}
 .card-header{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#fafafa;border-bottom:1px solid #f0f0f0}
 .drag-handle{cursor:grab;color:#bbb;font-size:16px;line-height:1;user-select:none;padding:0 2px}
 .drag-handle:active{cursor:grabbing}
@@ -87,6 +96,10 @@ input:checked+.slider-t:before{transform:translateX(14px)}
 .btn-small:hover{background:#f0f0f0}
 .btn-small.add{border-color:#7c3aed;color:#7c3aed}
 .btn-small.add:hover{background:#f5f0ff}
+.set-cond-btn{border:none;background:#16a34a;color:#fff;font-size:10px;padding:2px 7px;border-radius:4px;cursor:pointer;transition:background .15s}
+.set-cond-btn:hover{background:#15803d}
+.set-cond-btn.deselect{background:#6366f1}
+.set-cond-btn.deselect:hover{background:#4f46e5}
 #panel-code{background:#1e1e2e;padding:0!important}
 #panel-code.active{display:flex;flex-direction:column;align-items:stretch}
 #code-toolbar{padding:10px 14px;flex-shrink:0;border-bottom:1px solid #313244;display:flex;gap:8px;align-items:center}
@@ -94,11 +107,12 @@ input:checked+.slider-t:before{transform:translateX(14px)}
 #copy-btn:hover{background:#45475a}
 #copy-btn.copied{background:#1e8a4a;color:#fff}
 #code-out{flex:1;overflow:auto;padding:12px 16px;font-family:monospace;font-size:11.5px;line-height:1.6;color:#cdd6f4;white-space:pre;tab-size:2}
-#dup-flag{display:none;background:#dc2626;color:#fff;font-size:12px;padding:8px 16px;flex-shrink:0;align-items:center;gap:8px}
-/* Floating duplicate button */
-#dup-fab{position:fixed;top:16px;right:16px;background:#7c3aed;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;z-index:500;box-shadow:0 4px 12px rgba(124,58,237,.4);display:none;align-items:center;gap:6px;transition:background .15s}
+#dup-id-flag{display:none;background:#dc2626;color:#fff;font-size:12px;padding:8px 16px;flex-shrink:0;align-items:center;gap:8px}
+.fab{position:fixed;top:16px;z-index:500;border:none;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.25);display:none;align-items:center;gap:6px}
+#dup-fab{right:16px;background:#7c3aed;color:#fff}
 #dup-fab:hover{background:#6d28d9}
-/* Preview */
+#cond-fab{right:180px;background:#6366f1;color:#fff}
+#cond-fab:hover{background:#4f46e5}
 #panel-preview{background:#f9f9f9;padding:20px}
 #panel-preview.active{display:flex;flex-direction:column;align-items:center}
 #preview-form fieldset{border:none;padding:0;margin:0}
@@ -109,7 +123,7 @@ input:checked+.slider-t:before{transform:translateX(14px)}
 #preview-form li.third{width:calc(33.333% - 8px)!important}
 #preview-form label{display:block;font-size:13px;text-align:left;margin-bottom:2px;color:#333;font-weight:500}
 #preview-form .input-text{width:100%;font-size:100%;text-align:left;padding:.4rem .5rem .3rem;border:1px solid #ccc;border-radius:4px;background:#fff;position:relative;box-sizing:border-box}
-#preview-form input[type=text],#preview-form input[type=tel],#preview-form input[type=email],#preview-form input[type=date],#preview-form input[type=file],#preview-form textarea,#preview-form select{border:0;width:100%;outline:none;color:#aaa;font-size:13px;font-family:inherit;background-color:transparent;display:block;padding:4px 0;margin-top:2px}
+#preview-form input[type=text],#preview-form input[type=tel],#preview-form input[type=email],#preview-form input[type=date],#preview-form input[type=file],#preview-form textarea,#preview-form select{border:0;width:100%;outline:none;color:#333;font-size:13px;font-family:inherit;background-color:transparent;display:block;padding:4px 0;margin-top:2px}
 #preview-form textarea{resize:none;min-height:4.5rem}
 #preview-form select{appearance:none;padding-right:1.5rem;cursor:pointer}
 #preview-form .sel{position:relative}
@@ -120,36 +134,41 @@ input:checked+.slider-t:before{transform:translateX(14px)}
 #preview-form .input-mark label{font-size:13px;font-weight:400;margin:0;color:#333}
 #preview-form .inp-mrk small{font-size:11px;color:#888;display:block;line-height:1.5;margin-top:4px}
 #preview-form .inp-mrk small a{color:#5C8AC7}
-#preview-form h2.form-divider{font-size:16px;font-weight:600;color:#333;width:100%;display:block;margin:4px 0;padding:0}
+#preview-form h2.form-divider{font-size:16px;font-weight:600;color:#333;width:100%;display:block;margin:4px 0}
 #preview-form .verify-cont{margin-bottom:4px}
 #preview-form span.field-cap{border:3px solid #272727;padding:.1em .4em;border-radius:.3em;display:inline-block;line-height:1.3em;font-size:1.2em;background:#fff;color:#272727;margin:.4em 0}
 #preview-form .upload-more-row{display:flex;align-items:center;gap:6px;font-size:12px;color:#555;margin-top:2px}
 #preview-form .upload-more-row input{width:14px;height:14px;flex-shrink:0}
-#preview-form .preview-submit{margin-top:20px;background:#444;color:#fff;border:none;padding:10px 28px;border-radius:4px;font-size:14px;cursor:default;opacity:.8;align-self:flex-start}
-/* Modal overlay */
+#preview-form .preview-submit{margin-top:20px;background:#444;color:#fff;border:none;padding:10px 28px;border-radius:4px;font-size:14px;cursor:pointer;opacity:.85;align-self:flex-start}
+#preview-form .zone-preview{border:2px dashed #6366f1;border-radius:6px;padding:12px;margin:8px 0;width:100%}
+#preview-form .zone-preview.hidden{display:none}
+#preview-form .zone-preview-label{font-size:10px;color:#6366f1;margin-bottom:8px;font-weight:600}
+#preview-form .zone-preview ul{list-style:none;display:flex;flex-wrap:wrap;gap:12px;padding:0;margin:0}
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:1000}
 .modal-box{background:#fff;border-radius:10px;padding:24px;width:320px;box-shadow:0 8px 32px rgba(0,0,0,.2)}
 .modal-box h3{font-size:15px;font-weight:600;margin-bottom:8px;color:#222}
 .modal-box p{font-size:13px;color:#555;margin-bottom:16px;line-height:1.5}
-.modal-box input{width:100%;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:13px;margin-bottom:16px;outline:none}
-.modal-box input:focus{border-color:#7c3aed}
+.modal-box input[type=text]{width:100%;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:13px;margin-bottom:16px;outline:none;box-sizing:border-box}
+.modal-box input[type=text]:focus{border-color:#7c3aed}
 .modal-btns{display:flex;gap:8px;justify-content:flex-end}
 .modal-btns button{border:none;padding:7px 16px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:500}
-.btn-primary{background:#7c3aed;color:#fff}
-.btn-primary:hover{background:#6d28d9}
-.btn-cancel{background:#f0f0f0;color:#555}
-.btn-cancel:hover{background:#e0e0e0}
-.btn-danger{background:#dc2626;color:#fff}
-.btn-danger:hover{background:#b91c1c}
-#field-btns::-webkit-scrollbar,#code-out::-webkit-scrollbar,.panel::-webkit-scrollbar{width:5px}
-#field-btns::-webkit-scrollbar-thumb,#code-out::-webkit-scrollbar-thumb,.panel::-webkit-scrollbar-thumb{background:#44475a;border-radius:3px}
+.btn-primary{background:#7c3aed;color:#fff}.btn-primary:hover{background:#6d28d9}
+.btn-cancel{background:#f0f0f0;color:#555}.btn-cancel:hover{background:#e0e0e0}
+.btn-danger{background:#dc2626;color:#fff}.btn-danger:hover{background:#b91c1c}
+#cond-modal .modal-box{width:360px}
+.cond-opt-list{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;max-height:220px;overflow-y:auto}
+.cond-opt-item{padding:8px 12px;border:1px solid #ddd;border-radius:6px;cursor:pointer;font-size:13px;transition:background .12s,border-color .12s}
+.cond-opt-item:hover{background:#f5f0ff;border-color:#7c3aed}
+.cond-opt-item.selected{background:#ede9fe;border-color:#7c3aed;font-weight:500}
+#field-btns::-webkit-scrollbar,#code-out::-webkit-scrollbar,.panel::-webkit-scrollbar,#saved-list::-webkit-scrollbar{width:5px}
+#field-btns::-webkit-scrollbar-thumb,#code-out::-webkit-scrollbar-thumb,.panel::-webkit-scrollbar-thumb,#saved-list::-webkit-scrollbar-thumb{background:#44475a;border-radius:3px}
 #panel-editor::-webkit-scrollbar-thumb,#panel-preview::-webkit-scrollbar-thumb{background:#ccc}
 </style>
 </head>
 <body>
 
-<!-- Floating duplicate button -->
-<button id="dup-fab" onclick="duplicateChecked()">&#x2398; Duplicate Field(s)</button>
+<button class="fab" id="dup-fab" onclick="duplicateChecked()">&#x2398; Duplicate Field(s)</button>
+<button class="fab" id="cond-fab" onclick="startConditionSelect()">&#x2726; Add Condition to Zone <span id="cond-fab-zone"></span></button>
 
 <div id="app">
   <div id="sidebar">
@@ -170,19 +189,15 @@ input:checked+.slider-t:before{transform:translateX(14px)}
       <button class="add-btn" onclick="addField('divider')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h12M2 4h12M2 12h12"/></svg>Section Divider</button>
       <button class="add-btn" id="btn-multifile" onclick="addField('multifile')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h6l3 3v9H4V2z"/><path d="M10 2v3h3"/><path d="M4 8h5M4 11h3"/></svg>Multi File Upload</button>
       <button class="add-btn" id="btn-captcha" onclick="addField('captcha')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1l1.5 2.5L12 4l-2 2 .5 2.5L8 7.5 5.5 8.5 6 6 4 4l2.5-.5L8 1z"/><path d="M3 10l1 4M13 10l-1 4M5 14h6"/></svg>Captcha</button>
+      <button class="add-btn" onclick="addZone()"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="14" height="10" rx="1"/><path d="M1 6h14M1 10h14"/></svg>Conditional Zone</button>
     </div>
-
     <div id="req-toggle-section">
       <h2>Field Defaults</h2>
       <div id="req-toggle-row">
         <span id="req-toggle-label">Required is ON by default</span>
-        <label class="tog">
-          <input type="checkbox" id="req-default-toggle" checked onchange="updateReqDefault()">
-          <span class="tog-sl"></span>
-        </label>
+        <label class="tog"><input type="checkbox" id="req-default-toggle" checked onchange="updateReqDefault()"><span class="tog-sl"></span></label>
       </div>
     </div>
-
     <div id="saved-section">
       <h2>Saved Forms</h2>
       <div id="saved-list"></div>
@@ -205,37 +220,36 @@ input:checked+.slider-t:before{transform:translateX(14px)}
       <div class="panel" id="panel-code">
         <div id="code-toolbar">
           <button id="copy-btn" onclick="copyCode()">Copy</button>
-          <button onclick="saveCurrentForm(true)" style="background:#313244;border:none;color:#cdd6f4;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px;">&#x1F4BE; Save</button>
+          <button onclick="saveCurrentForm()" style="background:#313244;border:none;color:#cdd6f4;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px;">&#x1F4BE; Save</button>
         </div>
         <div id="code-out"></div>
-        <div id="dup-flag">
+        <div id="dup-id-flag">
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="8" r="7"/><path d="M8 5v4M8 11v.5"/></svg>
-          <span id="dup-msg"></span>
+          <span id="dup-id-msg"></span>
         </div>
       </div>
       <div class="panel" id="panel-preview">
         <div style="width:100%;max-width:720px">
           <div style="background:#fef9c3;border:1px solid #eab308;border-radius:6px;padding:8px 12px;font-size:11px;color:#854d0e;margin-bottom:16px;display:flex;align-items:flex-start;gap:7px">
-            <span style="flex-shrink:0">&#x2139;&#xFE0F;</span>
+            <span>&#x2139;&#xFE0F;</span>
             <span>This is a preview only. Final product may differ due to color scheme, font styles, and other customizations.</span>
           </div>
           <div id="preview-form"></div>
         </div>
       </div>
     </div>
-    <div id="dup-flag" style="display:none;background:#dc2626;color:#fff;font-size:12px;padding:8px 16px;flex-shrink:0;align-items:center;gap:8px">
+    <div id="dup-id-flag" style="display:none;background:#dc2626;color:#fff;font-size:12px;padding:8px 16px;flex-shrink:0;align-items:center;gap:8px">
       <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="8" r="7"/><path d="M8 5v4M8 11v.5"/></svg>
-      <span id="dup-msg"></span>
+      <span id="dup-id-msg"></span>
     </div>
   </div>
 </div>
 
-<!-- Name modal -->
 <div class="modal-overlay" id="modal-name" style="display:none">
   <div class="modal-box">
     <h3 id="modal-name-title">Name your form</h3>
     <p id="modal-name-desc">Give this form a name so you can find it later.</p>
-    <input id="modal-name-input" type="text" placeholder="e.g. Contact Form, Job Application..." maxlength="60">
+    <input id="modal-name-input" type="text" placeholder="e.g. Contact Form..." maxlength="60">
     <div class="modal-btns">
       <button class="btn-cancel" id="modal-name-cancel" style="display:none" onclick="closeNameModal()">Cancel</button>
       <button class="btn-primary" onclick="confirmName()">Create Form</button>
@@ -243,14 +257,25 @@ input:checked+.slider-t:before{transform:translateX(14px)}
   </div>
 </div>
 
-<!-- Delete confirm modal -->
 <div class="modal-overlay" id="modal-delete" style="display:none">
   <div class="modal-box">
     <h3>Delete form?</h3>
-    <p id="modal-delete-msg">Are you sure you want to delete this form? This cannot be undone.</p>
+    <p id="modal-delete-msg">This cannot be undone.</p>
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeDeleteModal()">Cancel</button>
       <button class="btn-danger" onclick="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="cond-modal" style="display:none">
+  <div class="modal-box" style="width:360px">
+    <h3 id="cond-modal-title">Choose trigger value</h3>
+    <p id="cond-modal-desc">Select which option will show the zone.</p>
+    <div class="cond-opt-list" id="cond-opt-list"></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeCondModal()">Cancel</button>
+      <button class="btn-primary" onclick="confirmCondition()">Apply</button>
     </div>
   </div>
 </div>
@@ -318,15 +343,13 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 /*END Calendar styles*/
 \t</style>`;
 
-let fields=[], dragSrc=null;
-let currentFormName='';
-let saveStatusTimer=null;
-let pendingDeleteName='';
-let reqDefaultOn=true; // Required ON by default
+let fields=[],zones=[],dragSrc=null,zoneDragSrc=null;
+let currentFormName='',saveStatusTimer=null,pendingDeleteName='';
+let reqDefaultOn=true;
+let condModeActive=false,condTargetZone=null,condSelectedFid=null,condSelectedVal=null;
+let condFabActiveZone=null;
 
-const LS_PREFIX='formbuilder_form_';
-const LS_INDEX='formbuilder_index';
-
+const LS_PREFIX='formbuilder_form_',LS_INDEX='formbuilder_index';
 const memStore={};
 const storage={
   get(k){try{return localStorage.getItem(k)}catch(e){return memStore[k]!==undefined?memStore[k]:null}},
@@ -335,45 +358,30 @@ const storage={
 };
 
 const defaults={
-  text:     {label:'First Name',     id:'FirstName',         width:'half',required:true},
-  tel:      {label:'Phone',          id:'Phone',             width:'half',required:true},
-  email:    {label:'Email',          id:'EmailAddress',      width:'half',required:true},
-  address:  {label:'Address',        id:'Address',           width:'full',required:false},
-  state:    {label:'State',          id:'State',             width:'full',required:true},
-  zip:      {label:'Zip',            id:'ZipCode',           width:'half',required:true},
-  message:  {label:'How can we help you?', id:'Message',     width:'full',required:true},
-  checkbox: {label:'Best Time To Reach You', id:'BestTimeToReachYou', width:'full',required:true,opts:['Morning','Afternoon','Evening']},
-  radio:    {label:'Family In Need or Veteran?', id:'InNeedOrVeteran', width:'full',required:true,opts:['Family In Need','Veteran']},
-  select:   {label:'Select label text', id:'NewSelectField', width:'full',required:true,opts:['one','two','three']},
-  multifile:{label:'Upload a file in pdf, doc, docx, png, or jpg only.', id:'FileUpload', width:'full',required:false,uploadMoreLabel:'Upload another file',extraCount:1},
-  divider:  {label:'New Form Section', id:'',                width:'full',required:false},
-  captcha:  {label:'Captcha',        id:'Captcha',           width:'full',required:false},
-  date:     {label:'What date would you be available to start?', id:'ServiceDateRequested', width:'full',required:true},
-  resume:   {label:'Upload a Resume/CV/Document', id:'Resume', width:'full',required:false},
+  text:     {label:'First Name',id:'FirstName',width:'half',required:true},
+  tel:      {label:'Phone',id:'Phone',width:'half',required:true},
+  email:    {label:'Email',id:'EmailAddress',width:'half',required:true},
+  address:  {label:'Address',id:'Address',width:'full',required:false},
+  state:    {label:'State',id:'State',width:'full',required:true},
+  zip:      {label:'Zip',id:'ZipCode',width:'half',required:true},
+  message:  {label:'How can we help you?',id:'Message',width:'full',required:true},
+  checkbox: {label:'Best Time To Reach You',id:'BestTimeToReachYou',width:'full',required:true,opts:['Morning','Afternoon','Evening']},
+  radio:    {label:'Family In Need or Veteran?',id:'InNeedOrVeteran',width:'full',required:true,opts:['Family In Need','Veteran']},
+  select:   {label:'Select label text',id:'NewSelectField',width:'full',required:true,opts:['one','two','three']},
+  multifile:{label:'Upload a file in pdf, doc, docx, png, or jpg only.',id:'FileUpload',width:'full',required:false,uploadMoreLabel:'Upload another file',extraCount:1},
+  divider:  {label:'New Form Section',id:'',width:'full',required:false},
+  captcha:  {label:'Captcha',id:'Captcha',width:'full',required:false},
+  date:     {label:'What date would you be available to start?',id:'ServiceDateRequested',width:'full',required:true},
+  resume:   {label:'Upload a Resume/CV/Document',id:'Resume',width:'full',required:false}
 };
 
-function uid(){return Math.random().toString(36).slice(2,8)}
+function uid(){return Math.random().toString(36).slice(2,8);}
 
-// ── Required default toggle ───────────────────────────────────
-function updateReqDefault(){
-  reqDefaultOn=document.getElementById('req-default-toggle').checked;
-  document.getElementById('req-toggle-label').textContent=reqDefaultOn?'Required is ON by default':'Required is OFF by default';
-}
-
-// ── LocalStorage helpers ──────────────────────────────────────
 function getIndex(){try{return JSON.parse(storage.get(LS_INDEX))||[];}catch(e){return [];}}
-function setIndex(arr){storage.set(LS_INDEX,JSON.stringify(arr))}
-function saveForm(name,fieldsData){
-  storage.set(LS_PREFIX+name,JSON.stringify(fieldsData));
-  const idx=getIndex();
-  if(!idx.includes(name)){idx.push(name);setIndex(idx);}
-}
-function loadForm(name){try{return JSON.parse(storage.get(LS_PREFIX+name))||null;}catch(e){return null;}}
-function deleteForm(name){
-  storage.remove(LS_PREFIX+name);
-  const idx=getIndex().filter(n=>n!==name);
-  setIndex(idx);
-}
+function setIndex(arr){storage.set(LS_INDEX,JSON.stringify(arr));}
+function saveForm(name,f,z){storage.set(LS_PREFIX+name,JSON.stringify({fields:f,zones:z}));const idx=getIndex();if(!idx.includes(name)){idx.push(name);setIndex(idx);}}
+function loadFormData(name){try{const d=JSON.parse(storage.get(LS_PREFIX+name));if(!d)return null;return d;}catch(e){return null;}}
+function deleteFormData(name){storage.remove(LS_PREFIX+name);setIndex(getIndex().filter(n=>n!==name));}
 
 function flashSaved(){
   const el=document.getElementById('save-status');
@@ -382,39 +390,31 @@ function flashSaved(){
   clearTimeout(saveStatusTimer);
   saveStatusTimer=setTimeout(()=>el.classList.remove('visible'),3000);
 }
-
-function saveCurrentForm(manual){
+function saveCurrentForm(){
   if(!currentFormName) return;
-  saveForm(currentFormName,fields);
-  renderSavedList();
-  flashSaved();
+  saveForm(currentFormName,fields,zones);
+  renderSavedList(); flashSaved();
 }
-
 function renderSavedList(){
-  const idx=getIndex();
-  const list=document.getElementById('saved-list');
+  const idx=getIndex(),list=document.getElementById('saved-list');
   list.innerHTML='';
   idx.forEach(name=>{
     const item=document.createElement('div');
     item.className='saved-item'+(name===currentFormName?' active-form':'');
-    item.innerHTML='<span class="saved-item-name" title="'+esc(name)+'">'+esc(name)+'</span><button class="saved-item-del" title="Delete">\u2715</button>';
+    item.innerHTML='<span class="saved-item-name" title="'+esc(name)+'">'+esc(name)+'</span><button class="saved-item-del">\u2715</button>';
     item.querySelector('.saved-item-del').addEventListener('click',e=>{e.stopPropagation();promptDelete(name);});
     item.addEventListener('click',()=>switchToForm(name));
     list.appendChild(item);
   });
 }
-
 function switchToForm(name){
   if(name===currentFormName) return;
-  if(currentFormName) saveForm(currentFormName,fields);
-  const saved=loadForm(name);
-  if(!saved) return;
-  currentFormName=name;
-  fields=saved;
-  render();
-  renderSavedList();
+  if(currentFormName) saveForm(currentFormName,fields,zones);
+  const d=loadFormData(name);if(!d)return;
+  currentFormName=name;fields=d.fields||[];zones=d.zones||[];
+  fields.forEach(f=>{if(f._dup===undefined)f._dup=false;});
+  render();renderSavedList();
 }
-
 function promptNewForm(){
   document.getElementById('modal-name-input').value='';
   document.getElementById('modal-name-cancel').style.display='inline-block';
@@ -433,170 +433,244 @@ function showInitialNameModal(){
 }
 function closeNameModal(){document.getElementById('modal-name').style.display='none';}
 function confirmName(){
-  const val=document.getElementById('modal-name-input').value.trim();
-  if(!val) return;
-  closeNameModal();
-  currentFormName=val;
-  const existing=loadForm(val);
-  if(existing){fields=existing;}
-  else{fields=[];setDefaultFields();}
-  saveCurrentForm();
-  render();
-  renderSavedList();
+  const val=document.getElementById('modal-name-input').value.trim();if(!val)return;
+  closeNameModal();currentFormName=val;
+  const d=loadFormData(val);
+  if(d){fields=d.fields||[];zones=d.zones||[];}
+  else{fields=[];zones=[];setDefaultFields();}
+  saveCurrentForm();render();renderSavedList();
 }
 document.getElementById('modal-name-input').addEventListener('keydown',e=>{if(e.key==='Enter')confirmName();});
-
-function promptDelete(name){
-  pendingDeleteName=name;
-  document.getElementById('modal-delete-msg').textContent='Are you sure you want to delete "'+name+'"? This cannot be undone.';
-  document.getElementById('modal-delete').style.display='flex';
-}
+function promptDelete(name){pendingDeleteName=name;document.getElementById('modal-delete-msg').textContent='Are you sure you want to delete "'+name+'"? This cannot be undone.';document.getElementById('modal-delete').style.display='flex';}
 function closeDeleteModal(){document.getElementById('modal-delete').style.display='none';pendingDeleteName='';}
 function confirmDelete(){
-  if(!pendingDeleteName) return;
-  deleteForm(pendingDeleteName);
+  if(!pendingDeleteName)return;
+  deleteFormData(pendingDeleteName);
   if(pendingDeleteName===currentFormName){
-    const remaining=getIndex();
-    if(remaining.length>0){currentFormName=remaining[0];fields=loadForm(currentFormName)||[];render();}
-    else{currentFormName='';fields=[];render();setTimeout(showInitialNameModal,200);}
+    const rem=getIndex();
+    if(rem.length>0){currentFormName=rem[0];const d=loadFormData(currentFormName);fields=d?d.fields||[]:[]; zones=d?d.zones||[]:[]; render();}
+    else{currentFormName='';fields=[];zones=[];render();setTimeout(showInitialNameModal,200);}
   }
-  closeDeleteModal();
-  renderSavedList();
+  closeDeleteModal();renderSavedList();
 }
-
 function switchTab(t){
   document.querySelectorAll('.tab').forEach(el=>el.classList.toggle('active',el.dataset.tab===t));
-  document.getElementById('panel-editor').classList.toggle('active',t==='editor');
-  document.getElementById('panel-code').classList.toggle('active',t==='code');
-  document.getElementById('panel-preview').classList.toggle('active',t==='preview');
+  ['editor','code','preview'].forEach(id=>document.getElementById('panel-'+id).classList.toggle('active',t===id));
   if(t==='preview') renderPreview();
 }
-
 function setDefaultFields(){
-  [{type:'text',  label:'First Name', id:'FirstName',    width:'half',required:true},
-   {type:'text',  label:'Last Name',  id:'LastName',     width:'half',required:true},
-   {type:'tel',   label:'Phone',      id:'Phone',        width:'half',required:true},
-   {type:'email', label:'Email',      id:'EmailAddress', width:'half',required:true},
-   {type:'address',label:'Address',   id:'Address',      width:'full',required:false},
-   {type:'select',label:'Are you a new customer?', id:'LeadTypeID', width:'full',required:true,
-     opts:["Yes, I am a potential new customer","No, I'm a current existing customer","I'm neither."]},
-   {type:'message',label:'How can we help you?', id:'Message', width:'full',required:true}
-  ].forEach(f=>fields.push(Object.assign({},f,{_id:uid(),_dup:false})));
+  [{type:'text',label:'First Name',id:'FirstName',width:'half',required:true},
+   {type:'text',label:'Last Name',id:'LastName',width:'half',required:true},
+   {type:'tel',label:'Phone',id:'Phone',width:'half',required:true},
+   {type:'email',label:'Email',id:'EmailAddress',width:'half',required:true},
+   {type:'address',label:'Address',id:'Address',width:'full',required:false},
+   {type:'select',label:'Are you a new customer?',id:'LeadTypeID',width:'full',required:true,opts:["Yes, I am a potential new customer","No, I'm a current existing customer","I'm neither."]},
+   {type:'message',label:'How can we help you?',id:'Message',width:'full',required:true}
+  ].forEach(f=>fields.push(Object.assign({},f,{_id:uid(),_dup:false,_zoneNum:null})));
 }
-
+function updateReqDefault(){
+  reqDefaultOn=document.getElementById('req-default-toggle').checked;
+  document.getElementById('req-toggle-label').textContent=reqDefaultOn?'Required is ON by default':'Required is OFF by default';
+}
 function init(){
   const idx=getIndex();
   if(idx.length>0){
     currentFormName=idx[0];
-    fields=loadForm(currentFormName)||[];
-    // ensure _dup exists on old saves
-    fields.forEach(f=>{if(f._dup===undefined)f._dup=false;});
-    render();
-    renderSavedList();
-  } else {
-    showInitialNameModal();
-  }
+    const d=loadFormData(currentFormName);
+    fields=d?d.fields||[]:[]; zones=d?d.zones||[]:[]; 
+    fields.forEach(f=>{if(f._dup===undefined)f._dup=false;if(f._zoneNum===undefined)f._zoneNum=null;});
+    render();renderSavedList();
+  } else { showInitialNameModal(); }
 }
 
-// ── Duplicate feature ─────────────────────────────────────────
-function toggleDupCheck(fid, checked){
-  const f=fields.find(x=>x._id===fid);
-  if(f) f._dup=checked;
-  updateDupFab();
+// ─── ZONES ───────────────────────────────────────────────────
+function addZone(){
+  const num=zones.length+1;
+  zones.push({num,fieldIds:[],condition:{fieldId:null,value:null}});
+  render();saveCurrentForm();
+}
+function removeZone(num){
+  const z=zones.find(z=>z.num===num);
+  if(z) z.fieldIds.forEach(fid=>{const f=fields.find(x=>x._id===fid);if(f)f._zoneNum=null;});
+  zones=zones.filter(z=>z.num!==num);
+  render();saveCurrentForm();
 }
 
-function updateDupFab(){
-  const fab=document.getElementById('dup-fab');
-  const hasAny=fields.some(f=>f._dup);
-  fab.style.display=hasAny?'flex':'none';
+// ─── CONDITION ───────────────────────────────────────────────
+function startConditionSelect(){condModeActive=true;condTargetZone=condFabActiveZone;condSelectedFid=null;render();}
+function setConditionField(fid){
+  if(!condModeActive)return;
+  condSelectedFid=fid;
+  const f=fields.find(x=>x._id===fid);if(!f)return;
+  document.getElementById('cond-modal-title').textContent='Condition for Zone '+condTargetZone;
+  document.getElementById('cond-modal-desc').textContent='Select which value shows Zone '+condTargetZone+':';
+  const list=document.getElementById('cond-opt-list');list.innerHTML='';
+  const z=zones.find(z=>z.num===condTargetZone);
+  const curVal=z&&z.condition.fieldId===fid?z.condition.value:null;
+  (f.opts||[]).forEach(opt=>{
+    const item=document.createElement('div');
+    item.className='cond-opt-item'+(opt===curVal?' selected':'');
+    item.textContent=opt;
+    item.addEventListener('click',()=>{list.querySelectorAll('.cond-opt-item').forEach(i=>i.classList.remove('selected'));item.classList.add('selected');condSelectedVal=opt;});
+    list.appendChild(item);
+  });
+  condSelectedVal=curVal;
+  document.getElementById('cond-modal').style.display='flex';
 }
-
-// Increment trailing number in a string, or append 2
-function bumpId(id){
-  if(!id) return id;
-  const m=id.match(/^(.*?)(\d+)$/);
-  if(m) return m[1]+(parseInt(m[2])+1);
-  return id+'2';
+function closeCondModal(){document.getElementById('cond-modal').style.display='none';}
+function confirmCondition(){
+  if(!condSelectedFid||!condSelectedVal)return;
+  const z=zones.find(z=>z.num===condTargetZone);
+  if(z) z.condition={fieldId:condSelectedFid,value:condSelectedVal};
+  closeCondModal();condModeActive=false;condTargetZone=null;condSelectedFid=null;condSelectedVal=null;
+  render();saveCurrentForm();
 }
-
-// Ensure bumped ID doesn't conflict with existing IDs
-function uniqueId(baseId){
-  const existing=new Set(fields.map(f=>f.id).filter(Boolean));
-  let candidate=bumpId(baseId);
-  while(existing.has(candidate)) candidate=bumpId(candidate);
-  return candidate;
+function clearZoneCondition(num){
+  const z=zones.find(z=>z.num===num);if(z) z.condition={fieldId:null,value:null};
+  render();saveCurrentForm();
 }
+function showCondFab(num){
+  condFabActiveZone=num;
+  document.getElementById('cond-fab-zone').textContent=num;
+  document.getElementById('cond-fab').style.display='flex';
+}
+function hideCondFab(){condFabActiveZone=null;document.getElementById('cond-fab').style.display='none';}
 
+// ─── DUPLICATE ───────────────────────────────────────────────
+function toggleDupCheck(fid,checked){const f=fields.find(x=>x._id===fid);if(f)f._dup=checked;updateDupFab();}
+function updateDupFab(){document.getElementById('dup-fab').style.display=fields.some(f=>f._dup)?'flex':'none';}
+function bumpId(id){if(!id)return id;const m=id.match(/^(.*?)(\d+)$/);return m?m[1]+(parseInt(m[2])+1):id+'2';}
+function uniqueId(baseId){const existing=new Set(fields.map(f=>f.id).filter(Boolean));let c=bumpId(baseId);while(existing.has(c))c=bumpId(c);return c;}
 function duplicateChecked(){
-  const todup=fields.filter(f=>f._dup);
-  if(!todup.length) return;
+  const todup=fields.filter(f=>f._dup);if(!todup.length)return;
   todup.forEach(orig=>{
     const copy=JSON.parse(JSON.stringify(orig));
-    copy._id=uid();
-    copy._dup=false;
+    copy._id=uid();copy._dup=false;copy._zoneNum=null;
     if(copy.id) copy.id=uniqueId(orig.id);
-    orig._dup=false;
-    fields.push(copy);
+    orig._dup=false;fields.push(copy);
   });
-  render();
-  saveCurrentForm();
-  updateDupFab();
+  render();saveCurrentForm();updateDupFab();
 }
 
+// ─── FIELD ACTIONS ───────────────────────────────────────────
 function addField(type){
-  if((type==='captcha'||type==='multifile')&&fields.some(f=>f.type===type)) return;
+  if((type==='captcha'||type==='multifile')&&fields.some(f=>f.type===type))return;
   const d=defaults[type];
-  const f={_id:uid(),type,...d,_dup:false};
+  const f={_id:uid(),type,...d,_dup:false,_zoneNum:null};
   if(d.opts) f.opts=[...d.opts];
-  // apply required default override
-  if(type!=='captcha'&&type!=='divider'&&type!=='multifile'&&type!=='address'&&type!=='resume'){
-    f.required=reqDefaultOn;
-  }
-  fields.push(f);
-  render();
-  saveCurrentForm();
+  if(type!=='captcha'&&type!=='divider'&&type!=='multifile'&&type!=='address'&&type!=='resume') f.required=reqDefaultOn;
+  fields.push(f);render();saveCurrentForm();
 }
-
 function removeField(fid){
-  fields=fields.filter(f=>f._id!==fid);
-  render();
-  saveCurrentForm();
-  updateDupFab();
-}
-
-function updateField(fid,key,val){
   const f=fields.find(x=>x._id===fid);
-  if(f) f[key]=val;
-  if(key==='width'){
-    const card=document.querySelector('[data-fid="'+fid+'"]');
-    if(card) card.className='field-card w-'+val;
-  }
-  renderCode();checkDuplicateIds();
-  saveCurrentForm();
+  if(f&&f._zoneNum){const z=zones.find(z=>z.num===f._zoneNum);if(z)z.fieldIds=z.fieldIds.filter(id=>id!==fid);}
+  fields=fields.filter(f=>f._id!==fid);
+  render();saveCurrentForm();updateDupFab();
 }
-
+function updateField(fid,key,val){
+  const f=fields.find(x=>x._id===fid);if(f) f[key]=val;
+  if(key==='width'){const card=document.querySelector('[data-fid="'+fid+'"]');if(card)card.className='field-card w-'+val;}
+  renderCode();checkDuplicateIds();saveCurrentForm();
+}
 function addOpt(fid){const f=fields.find(x=>x._id===fid);if(f&&f.opts){f.opts.push('New Option');render();saveCurrentForm();}}
 function removeOpt(fid,i){const f=fields.find(x=>x._id===fid);if(f&&f.opts){f.opts.splice(i,1);render();saveCurrentForm();}}
 function updateOpt(fid,i,val){const f=fields.find(x=>x._id===fid);if(f&&f.opts){f.opts[i]=val;renderCode();saveCurrentForm();}}
 function mfAdd(fid){const f=fields.find(x=>x._id===fid);if(f){f.extraCount=(f.extraCount||1)+1;render();saveCurrentForm();}}
 function mfRemove(fid){const f=fields.find(x=>x._id===fid);if(f&&f.extraCount>1){f.extraCount--;render();saveCurrentForm();}}
 
-function onDragStart(e,fid){dragSrc=fid;e.currentTarget.classList.add('dragging');e.dataTransfer.effectAllowed='move';}
-function onDragEnd(e){e.currentTarget.classList.remove('dragging');document.querySelectorAll('.drag-over').forEach(el=>el.classList.remove('drag-over'));}
+// ─── DRAG & DROP ─────────────────────────────────────────────
+function onDragStart(e,fid){dragSrc=fid;e.currentTarget.classList.add('dragging');e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',fid);}
+function onDragEnd(e){e.currentTarget.classList.remove('dragging');document.querySelectorAll('.drag-over,.drag-over-zone,.zone-wrapper.drag-over').forEach(el=>{el.classList.remove('drag-over','drag-over-zone');});}
 function onDragOver(e,fid){e.preventDefault();if(dragSrc===fid)return;document.querySelectorAll('.drag-over').forEach(el=>el.classList.remove('drag-over'));e.currentTarget.classList.add('drag-over');}
 function onDrop(e,fid){
   e.preventDefault();if(dragSrc===fid)return;
+  const srcF=fields.find(x=>x._id===dragSrc);
+  if(srcF&&srcF._zoneNum){const z=zones.find(z=>z.num===srcF._zoneNum);if(z)z.fieldIds=z.fieldIds.filter(id=>id!==dragSrc);srcF._zoneNum=null;}
   const si=fields.findIndex(x=>x._id===dragSrc),ti=fields.findIndex(x=>x._id===fid);
-  const [item]=fields.splice(si,1);fields.splice(ti,0,item);
+  fields.splice(ti,0,fields.splice(si,1)[0]);
   render();saveCurrentForm();
+}
+function onZoneDragStart(e,num){
+  zoneDragSrc=num;e.currentTarget.classList.add('dragging');
+  e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain','zone:'+num);e.stopPropagation();
+}
+function onZoneWrapDragOver(e,num){
+  if(zoneDragSrc===null||zoneDragSrc===num)return;
+  e.preventDefault();e.stopPropagation();
+  document.querySelectorAll('.zone-wrapper.drag-over').forEach(el=>el.classList.remove('drag-over'));
+  e.currentTarget.classList.add('drag-over');
+}
+function onZoneWrapDrop(e,num){
+  e.preventDefault();e.stopPropagation();
+  document.querySelectorAll('.zone-wrapper.drag-over').forEach(el=>el.classList.remove('drag-over'));
+  if(zoneDragSrc===null||zoneDragSrc===num){zoneDragSrc=null;return;}
+  const si=zones.findIndex(z=>z.num===zoneDragSrc),ti=zones.findIndex(z=>z.num===num);
+  zones.splice(ti,0,zones.splice(si,1)[0]);
+  zoneDragSrc=null;render();saveCurrentForm();
+}
+function onZoneDragOver(e,num){
+  e.preventDefault();
+  document.querySelectorAll('.drag-over-zone').forEach(el=>el.classList.remove('drag-over-zone'));
+  e.currentTarget.classList.add('drag-over-zone');
+}
+function onZoneDrop(e,num){
+  e.preventDefault();
+  document.querySelectorAll('.drag-over-zone').forEach(el=>el.classList.remove('drag-over-zone'));
+  if(!dragSrc)return;
+  const f=fields.find(x=>x._id===dragSrc);if(!f)return;
+  if(f._zoneNum&&f._zoneNum!==num){const oz=zones.find(z=>z.num===f._zoneNum);if(oz)oz.fieldIds=oz.fieldIds.filter(id=>id!==dragSrc);}
+  f._zoneNum=num;
+  const z=zones.find(z=>z.num===num);
+  if(z&&!z.fieldIds.includes(dragSrc)) z.fieldIds.push(dragSrc);
+  render();saveCurrentForm();
+}
+function removeFromZone(fid){
+  const f=fields.find(x=>x._id===fid);if(!f)return;
+  const z=zones.find(z=>z.num===f._zoneNum);if(z)z.fieldIds=z.fieldIds.filter(id=>id!==fid);
+  f._zoneNum=null;render();saveCurrentForm();
 }
 
 function esc(s=''){return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
+// ─── RENDER ──────────────────────────────────────────────────
+function buildCard(f,inZone){
+  const hasOpts=f.type==='checkbox'||f.type==='radio'||f.type==='select';
+  const isState=f.type==='state',isCap=f.type==='captcha',isDiv=f.type==='divider',isMF=f.type==='multifile';
+  const isCondField=hasOpts&&condModeActive;
+  let optsHtml='';
+  if(isMF){
+    const ec=f.extraCount||1;
+    optsHtml='<div class="opts-section"><label>Label text</label><div class="opt-row"><input value="'+esc(f.label)+'" oninput="updateField(\''+f._id+'\',\'label\',this.value)" style="flex:1"></div><label style="margin-top:6px">"Upload another file" label</label><div class="opt-row"><input value="'+esc(f.uploadMoreLabel||'Upload another file')+'" oninput="updateField(\''+f._id+'\',\'uploadMoreLabel\',this.value)" style="flex:1"></div><div style="display:flex;align-items:center;gap:12px;margin-top:8px;font-size:11px;color:#666"><span>Extra file slots: <strong>'+ec+'</strong></span><span>Total file slots: <strong>'+(ec+1)+'</strong></span></div><div style="display:flex;gap:6px;margin-top:6px"><button class="btn-small add" onclick="mfAdd(\''+f._id+'\')">+ Add slot</button><button class="btn-small" onclick="mfRemove(\''+f._id+'\')" '+(ec>1?'':'disabled style="opacity:.4;cursor:default"')+'>&minus; Remove slot</button></div></div>';
+  }
+  if(hasOpts){
+    const rows=(f.opts||[]).map((o,i)=>'<div class="opt-row"><input value="'+esc(o)+'" oninput="updateOpt(\''+f._id+'\','+i+',this.value)"><button class="btn-small" onclick="removeOpt(\''+f._id+'\','+i+')" style="color:#dc2626">\u2715</button></div>').join('');
+    optsHtml='<div class="opts-section"><label>Options</label>'+rows+'<button class="btn-small add" onclick="addOpt(\''+f._id+'\')">+ Add Option</button></div>';
+  }
+  const checkboxWarning=(f.type==='checkbox'&&f.required&&(f.opts||[]).length>1)
+    ?'<div style="background:#fef9c3;border:1px solid #eab308;border-radius:5px;padding:6px 9px;font-size:11px;color:#854d0e;display:flex;align-items:flex-start;gap:6px"><span>\u26a0\ufe0f</span><span>Having <strong>Required</strong> toggled on will require the user to select <strong>all</strong> options, not just one.</span></div>'
+    :'';
+  const showDup=!isCap&&!isDiv&&!inZone;
+  const dupHtml=showDup?'<label class="dup-check-wrap" onclick="event.stopPropagation()"><input type="checkbox" '+(f._dup?'checked':'')+' onchange="toggleDupCheck(\''+f._id+'\',this.checked)"> Duplicate</label>':'';
+  const isSelected=condSelectedFid===f._id;
+  const condBtn=isCondField?'<button class="set-cond-btn'+(isSelected?' deselect':'')+'" onclick="setConditionField(\''+f._id+'\')">'+(isSelected?'Deselect':'Set as condition')+'</button>':'';
+  const zoneTag=inZone?'<button class="btn-small" onclick="removeFromZone(\''+f._id+'\')" style="margin-top:4px;font-size:10px;color:#6366f1;border-color:#6366f1">\u2190 Remove from zone</button>':'';
+  let body;
+  if(isCap) body='<div class="card-body"><span style="font-size:11px;color:#888">Fixed field \u2014 no editable properties.</span></div>';
+  else if(isDiv) body='<div class="card-body"><div class="prop-row"><span class="prop-label">Text</span><input class="prop-input" value="'+esc(f.label)+'" oninput="updateField(\''+f._id+'\',\'label\',this.value)"></div></div>';
+  else if(isMF) body='<div class="card-body"><div class="prop-row"><span class="prop-label">Width</span><select class="prop-input" onchange="updateField(\''+f._id+'\',\'width\',this.value)"><option value="full" selected>Full</option></select></div>'+optsHtml+'</div>';
+  else body='<div class="card-body"><div class="prop-row"><span class="prop-label">Label</span><input class="prop-input" value="'+esc(f.label)+'" oninput="updateField(\''+f._id+'\',\'label\',this.value)"></div>'
+    +(isState?'':'<div class="prop-row"><span class="prop-label">ID</span><input class="prop-input" value="'+esc(f.id)+'" oninput="updateField(\''+f._id+'\',\'id\',this.value)"></div>')
+    +'<div class="prop-row"><span class="prop-label">Width</span><select class="prop-input" onchange="updateField(\''+f._id+'\',\'width\',this.value)"><option value="full"'+(f.width==='full'?' selected':'')+'>Full</option><option value="half"'+(f.width==='half'?' selected':'')+'>Half</option><option value="third"'+(f.width==='third'?' selected':'')+'>Third</option></select>'
+    +'<div class="toggle-wrap"><label class="toggle"><input type="checkbox" '+(f.required?'checked':'')+' onchange="updateField(\''+f._id+'\',\'required\',this.checked)"><span class="slider-t"></span></label><span class="toggle-label">Required</span></div></div>'
+    +optsHtml+checkboxWarning+zoneTag+'</div>';
+  return '<div class="card-header"><span class="drag-handle">\u28bf</span><span class="card-type">'+f.type+'</span><div class="card-actions">'+condBtn+dupHtml+'<button class="icon-btn danger" onclick="removeField(\''+f._id+'\')">\u2715</button></div></div>'+body;
+}
+
 function render(){
   const list=document.getElementById('fields-list');
   list.innerHTML='';
-  fields.forEach(f=>{
+
+  fields.filter(f=>!f._zoneNum).forEach(f=>{
     const card=document.createElement('div');
     card.className='field-card w-'+(f.width||'full');
     card.draggable=true;card.dataset.fid=f._id;
@@ -604,183 +678,273 @@ function render(){
     card.addEventListener('dragend',onDragEnd);
     card.addEventListener('dragover',e=>onDragOver(e,f._id));
     card.addEventListener('drop',e=>onDrop(e,f._id));
-
-    const hasOpts=f.type==='checkbox'||f.type==='radio'||f.type==='select';
-    const isState=f.type==='state';
-    const isCaptcha=f.type==='captcha';
-    const isDivider=f.type==='divider';
-    const isMultifile=f.type==='multifile';
-
-    let optsHtml='';
-    if(isMultifile){
-      const ec=f.extraCount||1;
-      optsHtml='<div class="opts-section"><label>Label text</label><div class="opt-row"><input value="'+esc(f.label)+'" oninput="updateField(\''+f._id+'\',\'label\',this.value)" style="flex:1"></div><label style="margin-top:6px">"Upload another file" label</label><div class="opt-row"><input value="'+esc(f.uploadMoreLabel||'Upload another file')+'" oninput="updateField(\''+f._id+'\',\'uploadMoreLabel\',this.value)" style="flex:1"></div><div style="display:flex;align-items:center;gap:12px;margin-top:8px;font-size:11px;color:#666"><span>Extra file slots: <strong>'+ec+'</strong></span><span>Total file slots: <strong>'+(ec+1)+'</strong></span></div><div style="display:flex;gap:6px;margin-top:6px"><button class="btn-small add" onclick="mfAdd(\''+f._id+'\')">+ Add slot</button><button class="btn-small" onclick="mfRemove(\''+f._id+'\')" '+(ec>1?'':'disabled style="opacity:.4;cursor:default"')+'>&minus; Remove slot</button></div></div>';
-    }
-    if(hasOpts){
-      const rows=(f.opts||[]).map((o,i)=>'<div class="opt-row"><input value="'+esc(o)+'" oninput="updateOpt(\''+f._id+'\','+i+',this.value)"><button class="btn-small" onclick="removeOpt(\''+f._id+'\','+i+')" style="color:#dc2626">\u2715</button></div>').join('');
-      optsHtml='<div class="opts-section"><label>Options</label>'+rows+'<button class="btn-small add" onclick="addOpt(\''+f._id+'\')">+ Add Option</button></div>';
-    }
-
-    const checkboxWarning=(f.type==='checkbox'&&f.required&&(f.opts||[]).length>1)
-      ?'<div style="background:#fef9c3;border:1px solid #eab308;border-radius:5px;padding:6px 9px;font-size:11px;color:#854d0e;display:flex;align-items:flex-start;gap:6px"><span style="flex-shrink:0">\u26a0\ufe0f</span><span>Having <strong>Required</strong> toggled on will require the user to select <strong>all</strong> options, not just one.</span></div>'
-      :'';
-
-    // Dup checkbox (not for captcha/divider/multifile)
-    const showDup=!isCaptcha&&!isDivider;
-    const dupHtml=showDup?'<label class="dup-check-wrap" onclick="event.stopPropagation()"><input type="checkbox" '+(f._dup?'checked':'')+' onchange="toggleDupCheck(\''+f._id+'\',this.checked)"> Duplicate</label>':'';
-
-    let bodyHtml;
-    if(isCaptcha){
-      bodyHtml='<div class="card-body"><span style="font-size:11px;color:#888">Fixed field \u2014 no editable properties.</span></div>';
-    } else if(isDivider){
-      bodyHtml='<div class="card-body"><div class="prop-row"><span class="prop-label">Text</span><input class="prop-input" value="'+esc(f.label)+'" oninput="updateField(\''+f._id+'\',\'label\',this.value)"></div></div>';
-    } else if(isMultifile){
-      bodyHtml='<div class="card-body"><div class="prop-row"><span class="prop-label">Width</span><select class="prop-input" onchange="updateField(\''+f._id+'\',\'width\',this.value)"><option value="full" selected>Full</option></select></div>'+optsHtml+'</div>';
-    } else {
-      bodyHtml='<div class="card-body"><div class="prop-row"><span class="prop-label">Label</span><input class="prop-input" value="'+esc(f.label)+'" oninput="updateField(\''+f._id+'\',\'label\',this.value)"></div>'
-        +(isState?'':'<div class="prop-row"><span class="prop-label">ID</span><input class="prop-input" value="'+esc(f.id)+'" oninput="updateField(\''+f._id+'\',\'id\',this.value)"></div>')
-        +'<div class="prop-row"><span class="prop-label">Width</span><select class="prop-input" onchange="updateField(\''+f._id+'\',\'width\',this.value)"><option value="full"'+(f.width==='full'?' selected':'')+'>Full</option><option value="half"'+(f.width==='half'?' selected':'')+'>Half</option><option value="third"'+(f.width==='third'?' selected':'')+'>Third</option></select>'
-        +'<div class="toggle-wrap"><label class="toggle"><input type="checkbox" '+(f.required?'checked':'')+' onchange="updateField(\''+f._id+'\',\'required\',this.checked)"><span class="slider-t"></span></label><span class="toggle-label">Required</span></div></div>'
-        +optsHtml+checkboxWarning+'</div>';
-    }
-
-    card.innerHTML='<div class="card-header"><span class="drag-handle">\u28bf</span><span class="card-type">'+f.type+'</span><div class="card-actions">'+dupHtml+'<button class="icon-btn danger" onclick="removeField(\''+f._id+'\')">\u2715</button></div></div>'+bodyHtml;
+    card.innerHTML=buildCard(f,false);
     list.appendChild(card);
   });
 
-  const capBtn=document.getElementById('btn-captcha');
-  if(capBtn) capBtn.style.opacity=fields.some(f=>f.type==='captcha')?'0.4':'1';
-  const mfBtn=document.getElementById('btn-multifile');
-  if(mfBtn) mfBtn.style.opacity=fields.some(f=>f.type==='multifile')?'0.4':'1';
+  zones.forEach(z=>{
+    const wrap=document.createElement('div');
+    wrap.className='zone-wrapper';
+    wrap.style.gridColumn='span 6';
+    wrap.draggable=true;wrap.dataset.zoneNum=z.num;
+    wrap.addEventListener('dragstart',e=>onZoneDragStart(e,z.num));
+    wrap.addEventListener('dragend',onDragEnd);
+    wrap.addEventListener('dragover',e=>onZoneWrapDragOver(e,z.num));
+    wrap.addEventListener('drop',e=>onZoneWrapDrop(e,z.num));
 
-  updateDupFab();
-  renderCode();
-  checkDuplicateIds();
+    const hasCond=z.condition&&z.condition.fieldId&&z.condition.value;
+    const condF=hasCond?fields.find(f=>f._id===z.condition.fieldId):null;
+    const condDesc=hasCond&&condF?'Condition: "'+condF.label+'" = "'+z.condition.value+'"':'No condition set';
+
+    wrap.innerHTML=
+      '<div class="zone-header">'
+        +'<span class="drag-handle" style="color:#6366f1">\u28bf</span>'
+        +'<span class="zone-label">Zone '+z.num+'</span>'
+        +'<div style="display:flex;align-items:center;gap:8px">'
+          +'<span style="font-size:10px;color:#888">'+condDesc+'</span>'
+          +(hasCond?'<button class="btn-small" onclick="clearZoneCondition('+z.num+')" style="font-size:10px;color:#dc2626;border-color:#dc2626">Clear</button>':'')
+          +'<button class="btn-small" onclick="showCondFab('+z.num+')" style="font-size:10px;background:#6366f122;border-color:#6366f1;color:#6366f1">\u2726 Set Condition</button>'
+          +'<button class="zone-del-btn" onclick="removeZone('+z.num+')">\u2715 Remove</button>'
+        +'</div>'
+      +'</div>'
+      +'<div class="zone-line"><span class="zone-line-label">zone '+z.num+' top</span></div>';
+
+    const inner=document.createElement('div');
+    inner.className='zone-inner';
+    inner.addEventListener('dragover',e=>onZoneDragOver(e,z.num));
+    inner.addEventListener('drop',e=>onZoneDrop(e,z.num));
+
+    const zFields=z.fieldIds.map(fid=>fields.find(f=>f._id===fid)).filter(Boolean);
+    if(zFields.length===0){
+      const hint=document.createElement('div');
+      hint.className='zone-empty-hint';hint.textContent='Drag fields here';
+      inner.appendChild(hint);
+    } else {
+      zFields.forEach(f=>{
+        const card=document.createElement('div');
+        card.className='field-card w-'+(f.width||'full');
+        card.draggable=true;card.dataset.fid=f._id;
+        card.addEventListener('dragstart',e=>onDragStart(e,f._id));
+        card.addEventListener('dragend',onDragEnd);
+        card.innerHTML=buildCard(f,true);
+        inner.appendChild(card);
+      });
+    }
+    wrap.appendChild(inner);
+    const btmLine=document.createElement('div');
+    btmLine.className='zone-line bottom';
+    btmLine.innerHTML='<span class="zone-line-label">zone '+z.num+' bottom</span>';
+    wrap.appendChild(btmLine);
+    list.appendChild(wrap);
+  });
+
+  if(!condFabActiveZone) hideCondFab();
+  const capBtn=document.getElementById('btn-captcha'),mfBtn=document.getElementById('btn-multifile');
+  if(capBtn) capBtn.style.opacity=fields.some(f=>f.type==='captcha')?'0.4':'1';
+  if(mfBtn) mfBtn.style.opacity=fields.some(f=>f.type==='multifile')?'0.4':'1';
+  updateDupFab();renderCode();checkDuplicateIds();
 }
 
+// ─── CODE GEN ────────────────────────────────────────────────
 function buildFieldCode(f){
-  const reqAttr=f.required?' required="required"':'';
-  const id=f.id||'FieldID',label=f.label||'Label',w=f.width||'full';
+  const req=f.required?' required="required"':'',id=f.id||'FieldID',lbl=f.label||'Label',w=f.width||'full';
   switch(f.type){
     case 'text':case 'tel':case 'email':{
-      const type=f.type==='tel'?'tel':f.type==='email'?'email':'text';
-      let extras='';
-      if(type==='tel') extras='\n\t\t\t\t\tpattern="\\(\\d{3}\\) \\d{3}-\\d{4}" class="phone-mask"';
-      if(type==='email') extras='\n\t\t\t\t\tpattern="[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$"';
-      const valMiss='\n\t\t\t\t<div class="validation" for="{ClientID:'+id+'}" data-type="valueMissing">\n\t\t\t\t\tPlease enter your '+label.toLowerCase()+'.\n\t\t\t\t</div>';
-      const valMism=type==='tel'?'\n\t\t\t\t<div class="validation" for="{ClientID:'+id+'}" data-type="typeMismatch">\n\t\t\t\t\tThis isn\'t a valid phone number.\n\t\t\t\t</div>':type==='email'?'\n\t\t\t\t<div class="validation" for="{ClientID:'+id+'}" data-type="typeMismatch">\n\t\t\t\t\tThis isn\'t a valid email address.\n\t\t\t\t</div>':'';
-      return '\t\t\t<li class="'+w+'">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label for="{ClientID:'+id+'">'+label+'</label>\n\t\t\t\t\t<input'+reqAttr+' type="'+type+'" id="'+id+'"'+extras+' icoral="Coral.Controls.Form.Input" e-ondatabinding="Coral.Dynamic.Bind">'+valMiss+valMism+'\n\t\t\t\t</div>\n\t\t\t</li>';
+      const t=f.type==='tel'?'tel':f.type==='email'?'email':'text';
+      let ex='';
+      if(t==='tel') ex='\n\t\t\t\t\tpattern="\\(\\d{3}\\) \\d{3}-\\d{4}" class="phone-mask"';
+      if(t==='email') ex='\n\t\t\t\t\tpattern="[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$"';
+      const vm='\n\t\t\t\t<div class="validation" for="{ClientID:'+id+'}" data-type="valueMissing">\n\t\t\t\t\tPlease enter your '+lbl.toLowerCase()+'.\n\t\t\t\t</div>';
+      const mm=t==='tel'?'\n\t\t\t\t<div class="validation" for="{ClientID:'+id+'}" data-type="typeMismatch">\n\t\t\t\t\tThis isn\'t a valid phone number.\n\t\t\t\t</div>':t==='email'?'\n\t\t\t\t<div class="validation" for="{ClientID:'+id+'}" data-type="typeMismatch">\n\t\t\t\t\tThis isn\'t a valid email address.\n\t\t\t\t</div>':'';
+      return '\t\t\t<li class="'+w+'">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label for="{ClientID:'+id+'">'+lbl+'</label>\n\t\t\t\t\t<input'+req+' type="'+t+'" id="'+id+'"'+ex+' icoral="Coral.Controls.Form.Input" e-ondatabinding="Coral.Dynamic.Bind">'+vm+mm+'\n\t\t\t\t</div>\n\t\t\t</li>';
     }
-    case 'address':
-      return '\t\t\t<li class="'+w+'">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label for="{ClientID:'+id+'">'+label+'</label>\n\t\t\t\t\t<input type="text" id="'+id+'" icoral="Coral.Controls.Form.Input" e-ondatabinding="Coral.Dynamic.Bind" data-ga-search="fulladdress">\n\t\t\t\t\t<input class="hd" id="GoogleAddress" type="checkbox" required="required" data-ga-target="googleaddress">\n\t\t\t\t\t<div class="validation" for="{ClientID:GoogleAddress}" data-type="valueMissing">\n\t\t\t\t\t\tPlease lookup your address.\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</li>';
-    case 'state':
-      return '\t\t\t<li class="sel '+w+'">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label for="{ClientID:State}">State</label>\n\t\t\t\t\t<select id="State" icoral="Coral.Controls.Form.Select"'+reqAttr+' p-properties="{\n\t\t\t\t\t\t  datasource: { from: \'Systems.dbo.UI_States\', orderby: \'StateName\' }\n\t\t\t\t\t  }">\n\t\t\t\t\t  <option value=""></option>\n\t\t\t\t\t  <option value="{StateName}" p-template="Item">{StateName}</option>\n\t\t\t\t\t</select>\n\t\t\t\t\t<svg role="presentation" data-use="arrow_down.24"></svg>\n\t\t\t\t\t<div class="validation" for="{ClientID:State}" data-type="valueMissing">\n\t\t\t\t\t\t\tPlease make a selection.\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</li>';
-    case 'zip':
-      return '\t\t\t<li class="'+w+'">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label for="{ClientID:'+id+'">'+label+'</label>\n\t\t\t\t\t<input'+reqAttr+' type="text" pattern="\\d{5}" maxlength="5" id="'+id+'" icoral="Coral.Controls.Form.Input" e-ondatabinding="Coral.Dynamic.Bind">\n\t\t\t\t\t<div class="validation" for="{ClientID:'+id+'}" data-type="valueMissing">\n\t\t\t\t\t\tPlease enter your Zip.\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</li>';
-    case 'message':
-      return '\t\t\t<li class="msg '+w+'">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label for="{ClientID:'+id+'">'+label+'</label>\n\t\t\t\t\t<textarea'+reqAttr+' type="text" id="'+id+'" icoral="Coral.Controls.Form.Input" e-ondatabinding="Coral.Dynamic.Bind"></textarea>\n\t\t\t\t\t<div class="validation" for="{ClientID:'+id+'}" data-type="valueMissing">\n\t\t\t\t\t\tPlease enter a message.\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</li>';
+    case 'address': return '\t\t\t<li class="'+w+'">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label for="{ClientID:'+id+'">'+lbl+'</label>\n\t\t\t\t\t<input type="text" id="'+id+'" icoral="Coral.Controls.Form.Input" e-ondatabinding="Coral.Dynamic.Bind" data-ga-search="fulladdress">\n\t\t\t\t\t<input class="hd" id="GoogleAddress" type="checkbox" required="required" data-ga-target="googleaddress">\n\t\t\t\t\t<div class="validation" for="{ClientID:GoogleAddress}" data-type="valueMissing">\n\t\t\t\t\t\tPlease lookup your address.\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</li>';
+    case 'state': return '\t\t\t<li class="sel '+w+'">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label for="{ClientID:State}">State</label>\n\t\t\t\t\t<select id="State" icoral="Coral.Controls.Form.Select"'+req+' p-properties="{\n\t\t\t\t\t\t  datasource: { from: \'Systems.dbo.UI_States\', orderby: \'StateName\' }\n\t\t\t\t\t  }">\n\t\t\t\t\t  <option value=""></option>\n\t\t\t\t\t  <option value="{StateName}" p-template="Item">{StateName}</option>\n\t\t\t\t\t</select>\n\t\t\t\t\t<svg role="presentation" data-use="arrow_down.24"></svg>\n\t\t\t\t\t<div class="validation" for="{ClientID:State}" data-type="valueMissing">\n\t\t\t\t\t\tPlease make a selection.\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</li>';
+    case 'zip': return '\t\t\t<li class="'+w+'">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label for="{ClientID:'+id+'">'+lbl+'</label>\n\t\t\t\t\t<input'+req+' type="text" pattern="\\d{5}" maxlength="5" id="'+id+'" icoral="Coral.Controls.Form.Input" e-ondatabinding="Coral.Dynamic.Bind">\n\t\t\t\t\t<div class="validation" for="{ClientID:'+id+'}" data-type="valueMissing">\n\t\t\t\t\t\tPlease enter your Zip.\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</li>';
+    case 'message': return '\t\t\t<li class="msg '+w+'">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label for="{ClientID:'+id+'">'+lbl+'</label>\n\t\t\t\t\t<textarea'+req+' type="text" id="'+id+'" icoral="Coral.Controls.Form.Input" e-ondatabinding="Coral.Dynamic.Bind"></textarea>\n\t\t\t\t\t<div class="validation" for="{ClientID:'+id+'}" data-type="valueMissing">\n\t\t\t\t\t\tPlease enter a message.\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</li>';
     case 'checkbox':{
       const items=(f.opts||[]).map(o=>'\t\t\t\t\t\t<li>\n\t\t\t\t\t\t\t<div class="input-mark input-text flex-middle-ceiling">\n\t\t\t\t\t\t\t\t<input type="checkbox" value="'+o+'">\n\t\t\t\t\t\t\t\t<label for="{ClientID:'+id+'}" class="replace"></label>\n\t\t\t\t\t\t\t\t<label>'+o+'</label>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</li>').join('\n');
-      return '\t\t\t<li class="checkbox '+w+'">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<p class="optional-checkbox-label">'+label+'</p>\n\t\t\t\t\t<ul id="'+id+'" icoral="Coral.Controls.Form.Select"'+reqAttr+'>\n'+items+'\n\t\t\t\t\t</ul>\n\t\t\t\t\t<div class="validation" for="{ClientID:'+id+'}" data-type="valueMissing">\n\t\t\t\t\tPlease make a selection.\n\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</li>';
+      return '\t\t\t<li class="checkbox '+w+'">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<p class="optional-checkbox-label">'+lbl+'</p>\n\t\t\t\t\t<ul id="'+id+'" icoral="Coral.Controls.Form.Select"'+req+'>\n'+items+'\n\t\t\t\t\t</ul>\n\t\t\t\t\t<div class="validation" for="{ClientID:'+id+'}" data-type="valueMissing">\n\t\t\t\t\tPlease make a selection.\n\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</li>';
     }
     case 'radio':{
       const items=(f.opts||[]).map(o=>'\t\t\t\t\t\t<li>\n\t\t\t\t\t\t\t<div class="input-mark input-text flex-middle-ceiling">\n\t\t\t\t\t\t\t\t<input type="radio" value="'+o+'">\n\t\t\t\t\t\t\t\t<label for="{ClientID:'+id+'}" class="replace"></label>\n\t\t\t\t\t\t\t\t<label>'+o+'</label>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</li>').join('\n');
-      return '\t\t\t<li class="radio '+w+' contact-method">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<p class="optional-radio-label" style="font-weight: 900;">'+label+'</p>\n\t\t\t\t\t<ul id="'+id+'" icoral="Coral.Controls.Form.Select"'+reqAttr+'>\n'+items+'\n\t\t\t\t\t</ul>\n\t\t\t\t\t<div class="validation" for="{ClientID:'+id+'}" data-type="valueMissing">\n\t\t\t\t\tPlease make a selection.\n\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</li>';
+      return '\t\t\t<li class="radio '+w+' contact-method">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<p class="optional-radio-label" style="font-weight: 900;">'+lbl+'</p>\n\t\t\t\t\t<ul id="'+id+'" icoral="Coral.Controls.Form.Select"'+req+'>\n'+items+'\n\t\t\t\t\t</ul>\n\t\t\t\t\t<div class="validation" for="{ClientID:'+id+'}" data-type="valueMissing">\n\t\t\t\t\tPlease make a selection.\n\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</li>';
     }
     case 'select':{
       const items=(f.opts||[]).map(o=>'\t\t\t\t\t<option value="'+o+'">'+o+'</option>').join('\n');
-      return '\t\t\t<li class="sel '+w+'">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label for="{ClientID:'+id+'">'+label+'</label>\n\t\t\t\t\t<select'+reqAttr+' id="'+id+'" icoral="Coral.Controls.Form.Select">\n\t\t\t\t\t\t<option value=""></option>\n'+items+'\n\t\t\t\t\t</select>\n\t\t\t\t\t<svg role="presentation" data-use="arrow_down.24"></svg>\n\t\t\t\t\t<div class="validation" for="{ClientID:'+id+'}" data-type="valueMissing">\n\t\t\t\t\t\tPlease make a selection.\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</li>';
+      return '\t\t\t<li class="sel '+w+'">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label for="{ClientID:'+id+'">'+lbl+'</label>\n\t\t\t\t\t<select'+req+' id="'+id+'" icoral="Coral.Controls.Form.Select">\n\t\t\t\t\t\t<option value=""></option>\n'+items+'\n\t\t\t\t\t</select>\n\t\t\t\t\t<svg role="presentation" data-use="arrow_down.24"></svg>\n\t\t\t\t\t<div class="validation" for="{ClientID:'+id+'}" data-type="valueMissing">\n\t\t\t\t\t\tPlease make a selection.\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</li>';
     }
     case 'multifile':{
-      const moreLabel=f.uploadMoreLabel||'Upload another file';
-      const total=(f.extraCount||1)+1;
-      const buildBox=(n,isFirst)=>{
-        const fileId=n===1?'FileUpload':'FileUpload'+n;
-        const showId='ShowFile'+(n+1);
-        const savePath=n===1?'/documents/photos/FileUpload/':'/documents/photos/FileUpload'+n+'/';
-        const hasChk=n<total;
-        const chkHtml=hasChk?'\n\t\t\t<li class="checkbox ">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<ul id="'+showId+'">\n\t\t\t\t\t\t<li>\n\t\t\t\t\t\t\t<div class="input-mark input-text flex-middle-ceiling">\n\t\t\t\t\t\t\t\t<input type="checkbox" value="" class="show-file">\n\t\t\t\t\t\t\t\t<label for="{ClientID:'+showId+'}" class="replace"></label>\n\t\t\t\t\t\t\t\t<label>'+moreLabel+'</label>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</li>\n\t\t\t\t\t</ul>\n\t\t\t\t</div>\n\t\t\t</li>':'';
-        const liHtml='\t\t\t<li class="full">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label for="{ClientID:'+fileId+'">'+label+'</label>\n\t\t\t\t\t<input id="'+fileId+'" accept="image/*,.pdf,.doc,.docx, png, jpg, jpeg" type="file" placeholder="" p-savepath="'+savePath+'" icoral="Coral.Controls.Form.File" e-ondatabinding="Coral.Dynamic.Bind" p-remote="true">\n\t\t\t\t</div>\n\t\t\t</li>'+chkHtml;
-        return '\t\t\t<div class="'+(isFirst?'full':'file-box hidden full')+'">\n'+liHtml+'\n\t\t\t</div>';
-      };
-      return Array.from({length:total},(_,i)=>buildBox(i+1,i===0)).join('\n');
+      const ml=f.uploadMoreLabel||'Upload another file',tot=(f.extraCount||1)+1,boxes=[];
+      for(let n=1;n<=tot;n++){
+        const fi=n===1?'FileUpload':'FileUpload'+n,sh='ShowFile'+(n+1),sp=n===1?'/documents/photos/FileUpload/':'/documents/photos/FileUpload'+n+'/';
+        const chk=n<tot?'\n\t\t\t<li class="checkbox ">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<ul id="'+sh+'">\n\t\t\t\t\t\t<li>\n\t\t\t\t\t\t\t<div class="input-mark input-text flex-middle-ceiling">\n\t\t\t\t\t\t\t\t<input type="checkbox" value="" class="show-file">\n\t\t\t\t\t\t\t\t<label for="{ClientID:'+sh+'}" class="replace"></label>\n\t\t\t\t\t\t\t\t<label>'+ml+'</label>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</li>\n\t\t\t\t\t</ul>\n\t\t\t\t</div>\n\t\t\t</li>':'';
+        boxes.push('\t\t\t<div class="'+(n===1?'full':'file-box hidden full')+'">\n\t\t\t<li class="full">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label for="{ClientID:'+fi+'">'+lbl+'</label>\n\t\t\t\t\t<input id="'+fi+'" accept="image/*,.pdf,.doc,.docx, png, jpg, jpeg" type="file" placeholder="" p-savepath="'+sp+'" icoral="Coral.Controls.Form.File" e-ondatabinding="Coral.Dynamic.Bind" p-remote="true">\n\t\t\t\t</div>\n\t\t\t</li>'+chk+'\n\t\t\t</div>');
+      }
+      return boxes.join('\n');
     }
-    case 'divider':
-      return '\t\t\t<h2 class="form-divider ta_ mrg_tp-30 mrg_bt-30">'+label+'</h2>';
-    case 'captcha':
-      return '\t\t\t<li class="captcha full">\n\t\t\t\t<div class="verify-cont">\n\t\t\t\t\t<span class="field-cap"></span>\n\t\t\t\t</div>\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label class="contactlabel captcha" for="Verification">\uD83D\uDEE1\uFE0F Please enter the above verification code:</label>\n\t\t\t\t\t<input required class="verification" type="text" autocomplete="off">\n\t\t\t\t</div>\n\t\t\t</li>';
-    case 'date':
-      return '\t\t\t<li class="'+w+' sel date">\n\t\t\t\t<div class="flex-spaced-between-auto-responsive" id="'+id+'" icoral="Coral.Controls.Form.Select" p-merge="{0}" e-ondatabinding="Coral.Dynamic.Bind">\n\t\t\t\t\t<div class="input-text full relative date">\n\t\t\t\t\t\t<a href="javascript:void(\'Select Date\')" tabindex="-1" aria-label="Select Next Date"></a>\n\t\t\t\t\t\t<svg data-use="calendar.24"></svg>\n\t\t\t\t\t\t<input type="date" placeholder=""'+reqAttr+'>\n\t\t\t\t\t\t<label class="hide" for="{ClientID:'+id+'">'+label+'</label>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</li>';
-    case 'resume':
-      return '\t\t\t<li class="'+w+'">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label for="{ClientID:'+id+'">'+label+'</label>\n\t\t\t\t\t<input id="'+id+'" accept="image/*,.pdf,.doc,.docx" type="file" placeholder="" p-savepath="/documents/resume/{ContactID}" icoral="Coral.Controls.Form.File" e-ondatabinding="Coral.Dynamic.Bind" p-remote="true">\n\t\t\t\t</div>\n\t\t\t</li>';
+    case 'divider': return '\t\t\t<h2 class="form-divider ta_ mrg_tp-30 mrg_bt-30">'+lbl+'</h2>';
+    case 'captcha': return '\t\t\t<li class="captcha full">\n\t\t\t\t<div class="verify-cont">\n\t\t\t\t\t<span class="field-cap"></span>\n\t\t\t\t</div>\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label class="contactlabel captcha" for="Verification">\uD83D\uDEE1\uFE0F Please enter the above verification code:</label>\n\t\t\t\t\t<input required class="verification" type="text" autocomplete="off">\n\t\t\t\t</div>\n\t\t\t</li>';
+    case 'date': return '\t\t\t<li class="'+w+' sel date">\n\t\t\t\t<div class="flex-spaced-between-auto-responsive" id="'+id+'" icoral="Coral.Controls.Form.Select" p-merge="{0}" e-ondatabinding="Coral.Dynamic.Bind">\n\t\t\t\t\t<div class="input-text full relative date">\n\t\t\t\t\t\t<a href="javascript:void(\'Select Date\')" tabindex="-1" aria-label="Select Next Date"></a>\n\t\t\t\t\t\t<svg data-use="calendar.24"></svg>\n\t\t\t\t\t\t<input type="date" placeholder=""'+req+'>\n\t\t\t\t\t\t<label class="hide" for="{ClientID:'+id+'">'+lbl+'</label>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</li>';
+    case 'resume': return '\t\t\t<li class="'+w+'">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label for="{ClientID:'+id+'">'+lbl+'</label>\n\t\t\t\t\t<input id="'+id+'" accept="image/*,.pdf,.doc,.docx" type="file" placeholder="" p-savepath="/documents/resume/{ContactID}" icoral="Coral.Controls.Form.File" e-ondatabinding="Coral.Dynamic.Bind" p-remote="true">\n\t\t\t\t</div>\n\t\t\t</li>';
     default: return '';
   }
 }
 
 function checkDuplicateIds(){
   const seen={};
-  fields.forEach(f=>{const id=(f.id||'').trim();if(!id)return;seen[id]=(seen[id]||[]);seen[id].push(f._id);});
-  const dups=Object.entries(seen).filter(([,a])=>a.length>1).map(([id])=>id);
-  const flag=document.getElementById('dup-flag'),msg=document.getElementById('dup-msg');
+  fields.forEach(f=>{const id=(f.id||'').trim();if(!id)return;seen[id]=seen[id]||[];seen[id].push(f._id);});
+  const dups=Object.keys(seen).filter(id=>seen[id].length>1);
+  const flag=document.getElementById('dup-id-flag'),msg=document.getElementById('dup-id-msg');
   if(dups.length){msg.textContent='Duplicate ID'+(dups.length>1?'s':'')+' detected: '+dups.join(', ')+' \u2014 each field must have a unique ID.';flag.style.display='flex';}
   else flag.style.display='none';
 }
 
 function renderCode(){
-  const hasMultifile=fields.some(f=>f.type==='multifile');
-  const multifileStyles=hasMultifile?'\n<style>\n.file-box.hidden {\n  display: none !important;\n}\n</style>':'';
-  const multifileScript=hasMultifile?'\n<script>\n\tlet showFile = document.querySelectorAll(\'.show-file\');\n\tlet fileBox = document.querySelectorAll(\'.file-box\');\n\tfor (let i=0; i < showFile.length; i++) {\n\t\tshowFile[i].addEventListener(\'change\', () => {\n\t\t\tif (showFile[i].checked) {\n\t\t\t\tfileBox[i].classList.remove(\'hidden\');\n\t\t\t} else {\n\t\t\t\tfileBox[i].classList.add(\'hidden\');\n\t\t\t}\n\t\t})\n\t}\n<\/script>':'';
-  const hasDivider=fields.some(f=>f.type==='divider');
-  const dividerStyles=hasDivider?'\n<style>\n.form-divider {\n   width: 100%;\n   display: block;\n}\n</style>':'';
-  const hasCaptcha=fields.some(f=>f.type==='captcha');
-  const captchaStyles=hasCaptcha?'\n<style>\n\tspan.field-cap {\n\t    border: 3px solid #272727;\n\t    padding: 0.1em 0.4em;\n\t    border-radius: 0.3em;\n\t    display: inline-block;\n\t    line-height: 1.3em;\n\t    font-size: 1.2em;\n\t    background-color: #ffffff;\n\t    color: #272727;\n\t    margin: 0.6em 0 0.5em;\n\t}\n\tform button[disabled] {\n\t    opacity: 0.5;\n\t}\n\t.verify-cont {\n\t\ttext-align: left;\n\t}\n</style>\n<script>\n\t\t\tlet captcha = \'\';\n\t\t\tlet single = \'\';\n\t\t\tlet captchaField = document.querySelectorAll(\'.field-cap\');\n\t\t\tlet verificationField = document.querySelectorAll(\'.captcha .verification\');\n\t\t\tlet submitButton = document.querySelectorAll(\'.form-btn\');\n\t\t\tfunction getLetters() {\n\t\t\t\tcaptcha = Math.random()\n\t\t\t\t\t.toString(36)\n\t\t\t\t\t.toUpperCase()\n\t\t\t\t\t.substring(2, 7);\n\t\t\t\tsingle = captcha.split(\'\');\n\t\t\t\tif (!!captcha.match(\'0|O|1|A|E|O|U|I|L\')) {\n\t\t\t\t\tgetLetters();\n\t\t\t\t}\n\t\t\t}\n\t\t\tfunction placeCaps() {\n\t\t\t\tgetLetters();\n\t\t\t\tcaptchaField.forEach((cfield) => {\n\t\t\t\t\tcfield.innerText = captcha;\n\t\t\t\t});\n\t\t\t}\n\t\t\tplaceCaps();\n\t\t\tfor (let i=0; i < verificationField.length; i++) {\n\t\t\t\tverificationField[i].addEventListener(\'change\', ()=> {\n\t\t\t\t\tif (verificationField[i].value.toUpperCase() === captchaField[i].innerText) {\n\t\t\t\t\t\tsubmitButton[i].removeAttribute(\'disabled\');\n\t\t\t\t\t\tsubmitButton[i].classList.add(\'active\');\n\t\t\t\t\t}\n\t\t\t\t})\n\t\t\t}\n<\/script>':'';
-  const needsStyles=fields.some(f=>['checkbox','radio','date'].includes(f.type));
-  const hasAddress=fields.some(f=>f.type==='address');
-  const addressBlock=hasAddress?'\t<if field="{F:lower:Sub:LeadIsCalled}" equals="customer">\n\t\t<input id="StreetAddress" type="hidden" icoral="Coral.Controls.Form.Input" e-ondatabinding="Coral.Dynamic.Bind" data-ga-target="address">\n\t\t<input id="City" type="hidden" icoral="Coral.Controls.Form.Input" e-ondatabinding="Coral.Dynamic.Bind" data-ga-target="city">\n\t\t<input id="State" type="hidden" icoral="Coral.Controls.Form.Input" e-ondatabinding="Coral.Dynamic.Bind" data-ga-target="state">\n\t\t<input id="ZipCode" type="hidden" icoral="Coral.Controls.Form.Input" e-ondatabinding="Coral.Dynamic.Bind" data-ga-target="zipcode">\n\t</if>\n':'';
-  const fieldLines=fields.map(f=>buildFieldCode(f)).filter(Boolean).join('\n');
+  const hasMF=fields.some(f=>f.type==='multifile'),hasDiv=fields.some(f=>f.type==='divider'),
+        hasCap=fields.some(f=>f.type==='captcha'),
+        needsSt=fields.some(f=>['checkbox','radio','date'].includes(f.type)),
+        hasAddr=fields.some(f=>f.type==='address'),hasZones=zones.length>0;
+
+  const mfSt=hasMF?'\n<style>\n.file-box.hidden { display: none !important; }\n</style>':'';
+  const mfSc=hasMF?'\n<script>\n\tlet showFile=document.querySelectorAll(\'.show-file\');\n\tlet fileBox=document.querySelectorAll(\'.file-box\');\n\tfor(let i=0;i<showFile.length;i++){showFile[i].addEventListener(\'change\',()=>{if(showFile[i].checked){fileBox[i].classList.remove(\'hidden\');}else{fileBox[i].classList.add(\'hidden\');}})}\n<\/script>':'';
+  const dvSt=hasDiv?'\n<style>\n.form-divider { width: 100%; display: block; }\n</style>':'';
+  const zoneSt=hasZones?'\n<style>\n.zone.hidden { display: none !important; width: 100%; }\n</style>':'';
+
+  let zoneSc='';
+  if(hasZones){
+    const condZones=zones.filter(z=>z.condition&&z.condition.fieldId&&z.condition.value);
+    if(condZones.length>0){
+      let js='\n<script>\n';
+      condZones.forEach(z=>{
+        const cf=fields.find(f=>f._id===z.condition.fieldId);if(!cf)return;
+        const fieldId=cf.id,val=z.condition.value,zClass='zone-'+z.num;
+        if(cf.type==='radio'){
+          js+='\tdocument.querySelectorAll(\'input[type="radio"]\').forEach(function(r){\n\t\tif(r.name&&r.name.indexOf("'+fieldId+'")>-1){\n\t\t\tr.addEventListener("change",function(){\n\t\t\t\tvar zone=document.querySelector(".'+zClass+'");if(!zone)return;\n\t\t\t\tif(this.value==="'+val+'")zone.classList.remove("hidden");else zone.classList.add("hidden");\n\t\t\t});\n\t\t}\n\t});\n';
+        } else if(cf.type==='checkbox'){
+          js+='\tdocument.querySelectorAll(\'input[type="checkbox"]\').forEach(function(cb){\n\t\tif(cb.name&&cb.name.indexOf("'+fieldId+'")>-1&&cb.value==="'+val+'"){\n\t\t\tcb.addEventListener("change",function(){\n\t\t\t\tvar zone=document.querySelector(".'+zClass+'");if(!zone)return;\n\t\t\t\tif(this.checked)zone.classList.remove("hidden");else zone.classList.add("hidden");\n\t\t\t});\n\t\t}\n\t});\n';
+        } else if(cf.type==='select'){
+          js+='\t(function(){var selEls=document.querySelectorAll("select");selEls.forEach(function(s){if(s.id&&s.id.indexOf("'+fieldId+'")>-1){s.addEventListener("change",function(){var zone=document.querySelector(".'+zClass+'");if(!zone)return;if(this.value==="'+val+'")zone.classList.remove("hidden");else zone.classList.add("hidden");});}});})();\n';
+        }
+      });
+      js+='<\/script>';
+      zoneSc=js;
+    }
+  }
+
+  const capSt=hasCap?'\n<style>\n\tspan.field-cap{border:3px solid #272727;padding:.1em .4em;border-radius:.3em;display:inline-block;line-height:1.3em;font-size:1.2em;background-color:#ffffff;color:#272727;margin:.6em 0 .5em;}\n\tform button[disabled]{opacity:0.5;}\n\t.verify-cont{text-align:left;}\n</style>\n<script>\n\t\t\tlet captcha=\'\';\n\t\t\tlet single=\'\';\n\t\t\tlet captchaField=document.querySelectorAll(\'.field-cap\');\n\t\t\tlet verificationField=document.querySelectorAll(\'.captcha .verification\');\n\t\t\tlet submitButton=document.querySelectorAll(\'.form-btn\');\n\t\t\tfunction getLetters(){captcha=Math.random().toString(36).toUpperCase().substring(2,7);single=captcha.split(\'\');if(!!captcha.match(\'0|O|1|A|E|O|U|I|L\')){getLetters();}}\n\t\t\tfunction placeCaps(){getLetters();captchaField.forEach((c)=>{c.innerText=captcha;});}\n\t\t\tplaceCaps();\n\t\t\tfor(let i=0;i<verificationField.length;i++){verificationField[i].addEventListener(\'change\',()=>{if(verificationField[i].value.toUpperCase()===captchaField[i].innerText){submitButton[i].removeAttribute(\'disabled\');submitButton[i].classList.add(\'active\');}})}\n<\/script>':'';
+  const addrBlk=hasAddr?'\t<if field="{F:lower:Sub:LeadIsCalled}" equals="customer">\n\t\t<input id="StreetAddress" type="hidden" icoral="Coral.Controls.Form.Input" e-ondatabinding="Coral.Dynamic.Bind" data-ga-target="address">\n\t\t<input id="City" type="hidden" icoral="Coral.Controls.Form.Input" e-ondatabinding="Coral.Dynamic.Bind" data-ga-target="city">\n\t\t<input id="State" type="hidden" icoral="Coral.Controls.Form.Input" e-ondatabinding="Coral.Dynamic.Bind" data-ga-target="state">\n\t\t<input id="ZipCode" type="hidden" icoral="Coral.Controls.Form.Input" e-ondatabinding="Coral.Dynamic.Bind" data-ga-target="zipcode">\n\t</if>\n':'';
+
+  const mainFields=fields.filter(f=>!f._zoneNum).map(buildFieldCode).filter(Boolean).join('\n');
+
+  // Zones output as <ul class="zone zone-N flx-at-700-grd-sml hidden">
+  const zoneDivs=zones.map(z=>{
+    const zFields=z.fieldIds.map(fid=>fields.find(f=>f._id===fid)).filter(Boolean);
+    const inner=zFields.map(buildFieldCode).filter(Boolean).join('\n');
+    return '\t\t\t<ul class="zone zone-'+z.num+' flx-at-700-grd-sml hidden">\n'+inner+'\n\t\t\t</ul>';
+  }).join('\n');
+
+  const fieldLines=mainFields+(zoneDivs?'\n'+zoneDivs:'');
   const consent='\t\t\t<li class="full">\n\t\t\t\t<div class="inp-mrk">\n\t\t\t\t\t<input type="hidden" id="Consent" required="" checked="">\n\t\t\t\t\t<small>By submitting, you agree to receive text messages from {Sub:BusinessName} at the number provided, including those related to your inquiry, follow-ups, and review requests, via automated technology. \nConsent is not a condition of purchase. Msg &amp; data rates may apply. Msg frequency may vary. Reply STOP to cancel or HELP for assistance. \n<a href="https://www.scorpion.co/acceptable-use-policy/" target="_blank" rel="nofollow"><u>Acceptable Use Policy</u></a></small>\n\t\t\t\t</div>\n\t\t\t</li>';
-  const code='<div id="@@ElementID@@Form" icoral="Coral.Controls.Repeater" p-properties="{\n\t\tinserting: true,\n\t\tdatasource: { into: \'Systems.dbo.Contact_Forms\' },\n\t\tbeforeinsert: [\n\t\t\t{ action: \'spam\', noterms: false }\n\t\t],\n\t\tafterinsert: [\n\t\t\t{ action: \'email\', emailtemplate: \'78\' },\n\t\t\t{ action: \'email\', emailtemplate: \'62\' }\n\t\t],\n\t\taftercompleted: [\n\t\t\t{ action: \'redirect\', to: \'{SystemPage:148}\' }\n\t\t]\n\t}">\n\t<link href="/common/make/css-mobile/tools/flex-gas-sml.css" rel="stylesheet" type="text/css" p-place="true"/>\n\t<link href="/includes/forms.css" rel="stylesheet" type="text/css" p-place="true"/>\n\t<noscript type="text/javascript" async="async" src="/common/usc/p/phone-format.js" p-place="true"></noscript>\n\t<if field="{F:lower:Sub:LeadIsCalled}" equals="customer">\n\t\t<noscript type="text/javascript" p-place="true">\n\t\t    var @@ElementID@@frm = document.getElementById( \'@@ElementID@@Form\' );\n\t\t    require2( \'/common/usc/p/utils.js\', function() {\n\t\t    \tUSC.onVisible( @@ElementID@@frm, -0.5, function() {\n\t\t    \trequire2( \'/common/usc/p/google-address-lookup.js\', function() {\n\t\t    \t        USC.googleAddressLookup( @@ElementID@@frm )\n\t\t    \t    });\n\t\t    \t});\n\t\t    });\n\t\t</noscript>\n\t</if>\n\t<fieldset>\n\t\t<ul class="@@ListClassList|flx-at-700-grd-sml@@">\n'+fieldLines+'\n'+consent+'\n\t\t</ul>\n\t</fieldset>\n'+addressBlock+'\t<input id="FFD6" type="hidden" icoral="Coral.Controls.Form.Input" e-ondatabinding="Coral.Dynamic.Bind">\n\t<app-component app-id="FormSubmit">\n\t\t<app-chunk name="ButtonVersion">@@ButtonVersion|v1@@</app-chunk>\n\t\t<app-chunk name="ButtonText">@@ButtonText|Send Message@@</app-chunk>\n\t\t<app-chunk name="ClassList">@@ButtonClassList@@</app-chunk>\n\t\t<app-chunk name="MarginTop">@@ButtonMarginTop|mrg_tp-40@@</app-chunk>\n\t</app-component>\n'+(needsStyles?STYLES:'')+dividerStyles+multifileStyles+captchaStyles+multifileScript+'\n</div>';
-  document.getElementById('code-out').textContent=code;
+
+  document.getElementById('code-out').textContent='<div id="@@ElementID@@Form" icoral="Coral.Controls.Repeater" p-properties="{\n\t\tinserting: true,\n\t\tdatasource: { into: \'Systems.dbo.Contact_Forms\' },\n\t\tbeforeinsert: [\n\t\t\t{ action: \'spam\', noterms: false }\n\t\t],\n\t\tafterinsert: [\n\t\t\t{ action: \'email\', emailtemplate: \'78\' },\n\t\t\t{ action: \'email\', emailtemplate: \'62\' }\n\t\t],\n\t\taftercompleted: [\n\t\t\t{ action: \'redirect\', to: \'{SystemPage:148}\' }\n\t\t]\n\t}">\n\t<link href="/common/make/css-mobile/tools/flex-gas-sml.css" rel="stylesheet" type="text/css" p-place="true"/>\n\t<link href="/includes/forms.css" rel="stylesheet" type="text/css" p-place="true"/>\n\t<noscript type="text/javascript" async="async" src="/common/usc/p/phone-format.js" p-place="true"></noscript>\n\t<if field="{F:lower:Sub:LeadIsCalled}" equals="customer">\n\t\t<noscript type="text/javascript" p-place="true">\n\t\t    var @@ElementID@@frm = document.getElementById( \'@@ElementID@@Form\' );\n\t\t    require2( \'/common/usc/p/utils.js\', function() {\n\t\t    \tUSC.onVisible( @@ElementID@@frm, -0.5, function() {\n\t\t    \trequire2( \'/common/usc/p/google-address-lookup.js\', function() {\n\t\t    \t        USC.googleAddressLookup( @@ElementID@@frm )\n\t\t    \t    });\n\t\t    \t});\n\t\t    });\n\t\t</noscript>\n\t</if>\n\t<fieldset>\n\t\t<ul class="@@ListClassList|flx-at-700-grd-sml@@">\n'+fieldLines+'\n'+consent+'\n\t\t</ul>\n\t</fieldset>\n'+addrBlk+'\t<input id="FFD6" type="hidden" icoral="Coral.Controls.Form.Input" e-ondatabinding="Coral.Dynamic.Bind">\n\t<app-component app-id="FormSubmit">\n\t\t<app-chunk name="ButtonVersion">@@ButtonVersion|v1@@</app-chunk>\n\t\t<app-chunk name="ButtonText">@@ButtonText|Send Message@@</app-chunk>\n\t\t<app-chunk name="ClassList">@@ButtonClassList@@</app-chunk>\n\t\t<app-chunk name="MarginTop">@@ButtonMarginTop|mrg_tp-40@@</app-chunk>\n\t</app-component>'
+    +(needsSt?'\n'+STYLES:'')
+    +(dvSt?'\n'+dvSt:'')
+    +(mfSt?'\n'+mfSt:'')
+    +(zoneSt?'\n'+zoneSt:'')
+    +(capSt?'\n'+capSt:'')
+    +(mfSc?'\n'+mfSc:'')
+    +(zoneSc?'\n'+zoneSc:'')
+    +'\n</div>';
+}
+
+// ─── PREVIEW ─────────────────────────────────────────────────
+function buildPreviewField(f){
+  const lbl=f.label||'Label',w=f.width||'full';
+  switch(f.type){
+    case 'text': return '<li class="'+w+'"><div class="input-text"><label>'+lbl+'</label><input type="text" placeholder=""></div></li>';
+    case 'tel': return '<li class="'+w+'"><div class="input-text"><label>'+lbl+'</label><input type="tel" placeholder="(___) ___-____"></div></li>';
+    case 'email': return '<li class="'+w+'"><div class="input-text"><label>'+lbl+'</label><input type="email" placeholder=""></div></li>';
+    case 'address': return '<li class="'+w+'"><div class="input-text"><label>'+lbl+'</label><input type="text" placeholder="Enter a location"></div></li>';
+    case 'state': return '<li class="sel '+w+'"><div class="input-text"><label>State</label><select><option value="">Select a state...</option></select><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 11L2 5h12z"/></svg></div></li>';
+    case 'zip': return '<li class="'+w+'"><div class="input-text"><label>'+lbl+'</label><input type="text" placeholder="00000" maxlength="5"></div></li>';
+    case 'message': return '<li class="msg '+w+'"><div class="input-text"><label>'+lbl+'</label><textarea></textarea></div></li>';
+    case 'checkbox': return '<li class="'+w+'"><div class="input-text" style="border:none;padding-left:0"><p class="optional-checkbox-label">'+lbl+'</p>'+(f.opts||[]).map(o=>'<div class="input-mark"><input type="checkbox" value="'+o+'"><label>'+o+'</label></div>').join('')+'</div></li>';
+    case 'radio': return '<li class="'+w+'"><div class="input-text" style="border:none;padding-left:0"><p class="optional-radio-label" style="font-weight:900">'+lbl+'</p>'+(f.opts||[]).map(o=>'<div class="input-mark"><input type="radio" value="'+o+'"><label>'+o+'</label></div>').join('')+'</div></li>';
+    case 'select': return '<li class="sel '+w+'"><div class="input-text"><label>'+lbl+'</label><select><option value=""></option>'+(f.opts||[]).map(o=>'<option value="'+o+'">'+o+'</option>').join('')+'</select><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 11L2 5h12z"/></svg></div></li>';
+    case 'date': return '<li class="'+w+'"><div class="input-text"><label>'+lbl+'</label><input type="date"></div></li>';
+    case 'resume': return '<li class="'+w+'"><div class="input-text"><label>'+lbl+'</label><input type="file"></div></li>';
+    case 'multifile':{
+      const ml=f.uploadMoreLabel||'Upload another file',tot=(f.extraCount||1)+1;
+      let h='<li class="full"><div class="input-text"><label>'+lbl+'</label><input type="file"></div></li>';
+      for(let i=2;i<=tot;i++) h+='<li class="full"><div class="upload-more-row"><input type="checkbox">'+ml+'</div></li>';
+      return h;
+    }
+    case 'divider': return '<h2 class="form-divider" style="width:100%;margin:8px 0">'+lbl+'</h2>';
+    case 'captcha': return '<li class="full"><div class="verify-cont"><span class="field-cap">Y9KWB</span></div><div class="input-text"><label>\uD83D\uDEE1\uFE0F Please enter the above verification code:</label><input type="text"></div></li>';
+    default: return '';
+  }
 }
 
 function renderPreview(){
-  const container=document.getElementById('preview-form');
-  let html='<fieldset><ul class="preview-ul">';
-  fields.forEach(f=>{
-    const label=f.label||'Label';
-    const w=f.width||'full';
-    switch(f.type){
-      case 'text': html+='<li class="'+w+'"><div class="input-text"><label>'+label+'</label><input type="text" disabled></div></li>';break;
-      case 'tel': html+='<li class="'+w+'"><div class="input-text"><label>'+label+'</label><input type="tel" placeholder="(___) ___-____" disabled></div></li>';break;
-      case 'email': html+='<li class="'+w+'"><div class="input-text"><label>'+label+'</label><input type="email" disabled></div></li>';break;
-      case 'address': html+='<li class="'+w+'"><div class="input-text"><label>'+label+'</label><input type="text" placeholder="Enter a location" disabled></div></li>';break;
-      case 'state': html+='<li class="sel '+w+'"><div class="input-text"><label>State</label><select disabled><option value="">Select a state...</option></select><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 11L2 5h12z"/></svg></div></li>';break;
-      case 'zip': html+='<li class="'+w+'"><div class="input-text"><label>'+label+'</label><input type="text" placeholder="00000" maxlength="5" disabled></div></li>';break;
-      case 'message': html+='<li class="msg '+w+'"><div class="input-text"><label>'+label+'</label><textarea disabled></textarea></div></li>';break;
-      case 'checkbox':{const opts=(f.opts||[]).map(o=>'<div class="input-mark"><input type="checkbox" disabled><label>'+o+'</label></div>').join('');html+='<li class="'+w+'"><div class="input-text" style="border:none;padding-left:0"><p class="optional-checkbox-label">'+label+'</p>'+opts+'</div></li>';break;}
-      case 'radio':{const opts=(f.opts||[]).map(o=>'<div class="input-mark"><input type="radio" disabled><label>'+o+'</label></div>').join('');html+='<li class="'+w+'"><div class="input-text" style="border:none;padding-left:0"><p class="optional-radio-label" style="font-weight:900">'+label+'</p>'+opts+'</div></li>';break;}
-      case 'select':{const opts=(f.opts||[]).map(o=>'<option>'+o+'</option>').join('');html+='<li class="sel '+w+'"><div class="input-text"><label>'+label+'</label><select disabled><option value=""></option>'+opts+'</select><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 11L2 5h12z"/></svg></div></li>';break;}
-      case 'date': html+='<li class="'+w+'"><div class="input-text"><label>'+label+'</label><input type="date" disabled></div></li>';break;
-      case 'resume': html+='<li class="'+w+'"><div class="input-text"><label>'+label+'</label><input type="file" disabled></div></li>';break;
-      case 'multifile':{
-        const moreLabel=f.uploadMoreLabel||'Upload another file';
-        const total=(f.extraCount||1)+1;
-        html+='<li class="full"><div class="input-text"><label>'+label+'</label><input type="file" disabled></div></li>';
-        for(let i=2;i<=total;i++){html+='<li class="full"><div class="upload-more-row"><input type="checkbox" disabled>'+moreLabel+'</div></li>';}
-        break;
+  const c=document.getElementById('preview-form');
+  let h='<fieldset><ul class="preview-ul">';
+  fields.filter(f=>!f._zoneNum).forEach(f=>{h+=buildPreviewField(f);});
+  h+='<li class="full"><div class="inp-mrk"><small>By submitting, you agree to receive text messages from {BusinessName} at the number provided. Consent is not a condition of purchase. Msg &amp; data rates may apply. <a href="#">Acceptable Use Policy</a></small></div></li></ul></fieldset>';
+
+  zones.forEach(z=>{
+    const zFields=z.fieldIds.map(fid=>fields.find(f=>f._id===fid)).filter(Boolean);
+    const hasCond=z.condition&&z.condition.fieldId&&z.condition.value;
+    const cf=hasCond?fields.find(f=>f._id===z.condition.fieldId):null;
+    h+='<div class="zone-preview hidden" id="preview-zone-'+z.num+'">';
+    h+='<div class="zone-preview-label">Zone '+z.num+(cf?' \u2014 triggered by: '+cf.label+' = "'+z.condition.value+'"':'')+' (hidden by default)</div>';
+    h+='<ul class="preview-ul">';
+    zFields.forEach(f=>{h+=buildPreviewField(f);});
+    h+='</ul></div>';
+  });
+
+  h+='<button class="preview-submit">Send Message</button>';
+  c.innerHTML=h;
+
+  zones.forEach(z=>{
+    if(!z.condition||!z.condition.fieldId||!z.condition.value)return;
+    const cf=fields.find(f=>f._id===z.condition.fieldId);if(!cf)return;
+    const zoneEl=document.getElementById('preview-zone-'+z.num);if(!zoneEl)return;
+    const val=z.condition.value;
+    if(cf.type==='radio'){
+      c.querySelectorAll('input[type="radio"]').forEach(r=>{
+        if((cf.opts||[]).includes(r.value)){
+          r.addEventListener('change',function(){
+            if(this.value===val)zoneEl.classList.remove('hidden');
+            else zoneEl.classList.add('hidden');
+          });
+        }
+      });
+    } else if(cf.type==='checkbox'){
+      c.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
+        if(cb.value===val){
+          cb.addEventListener('change',function(){
+            if(this.checked)zoneEl.classList.remove('hidden');
+            else zoneEl.classList.add('hidden');
+          });
+        }
+      });
+    } else if(cf.type==='select'){
+      const opt=c.querySelector('select option[value="'+val+'"]');
+      if(opt){
+        opt.closest('select').addEventListener('change',function(){
+          if(this.value===val)zoneEl.classList.remove('hidden');
+          else zoneEl.classList.add('hidden');
+        });
       }
-      case 'divider': html+='<h2 class="form-divider" style="width:100%;margin:8px 0">'+label+'</h2>';break;
-      case 'captcha': html+='<li class="full"><div class="verify-cont"><span class="field-cap">Y9KWB</span></div><div class="input-text"><label>\uD83D\uDEE1\uFE0F Please enter the above verification code:</label><input type="text" disabled></div></li>';break;
     }
   });
-  html+='<li class="full"><div class="inp-mrk"><small>By submitting, you agree to receive text messages from {BusinessName} at the number provided, including those related to your inquiry, follow-ups, and review requests, via automated technology. Consent is not a condition of purchase. Msg &amp; data rates may apply. Reply STOP to cancel or HELP for assistance. <a href="#">Acceptable Use Policy</a></small></div></li></ul></fieldset><button class="preview-submit" disabled>Send Message</button>';
-  container.innerHTML=html;
 }
 
 function copyCode(){
-  const text=document.getElementById('code-out').textContent;
   const ta=document.createElement('textarea');
-  ta.value=text;ta.style.cssText='position:fixed;top:0;left:0;opacity:0;pointer-events:none';
+  ta.value=document.getElementById('code-out').textContent;
+  ta.style.cssText='position:fixed;top:0;left:0;opacity:0;pointer-events:none';
   document.body.appendChild(ta);ta.focus();ta.select();
   try{document.execCommand('copy');}catch(e){}
   document.body.removeChild(ta);
