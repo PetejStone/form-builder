@@ -48,8 +48,6 @@ html,body{height:100%;overflow:hidden;font-family:system-ui,sans-serif;font-size
 #save-status{font-size:10px;color:#7c3aed;height:14px;margin-bottom:6px;align-self:flex-start;opacity:0;transition:opacity .3s}
 #save-status.visible{opacity:1}
 #fields-list{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;width:100%;max-width:100%}
-
-/* Zone styles */
 .zone-wrapper{width:100%;grid-column:span 6;margin-top:4px;position:relative}
 .zone-line{height:2px;background:#6366f1;width:100%;position:relative}
 .zone-line-label{position:absolute;right:4px;top:-16px;font-size:10px;color:#a0a0b0;user-select:none}
@@ -61,7 +59,6 @@ html,body{height:100%;overflow:hidden;font-family:system-ui,sans-serif;font-size
 .zone-del-btn{background:none;border:none;color:#aaa;cursor:pointer;font-size:12px;padding:2px 5px;border-radius:4px}
 .zone-del-btn:hover{background:#fee2e2;color:#dc2626}
 .zone-empty-hint{grid-column:span 6;font-size:11px;color:#bbb;text-align:center;padding:10px 0;pointer-events:none}
-
 .field-card{background:#fff;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden}
 .field-card.w-full{grid-column:span 6}.field-card.w-half{grid-column:span 3}.field-card.w-third{grid-column:span 2}
 .field-card.dragging{opacity:.4}.field-card.drag-over{border-color:#7c3aed;box-shadow:0 0 0 2px #7c3aed33}
@@ -190,6 +187,9 @@ input:checked+.slider-t:before{transform:translateX(14px)}
       <button class="add-btn" id="btn-multifile" onclick="addField('multifile')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h6l3 3v9H4V2z"/><path d="M10 2v3h3"/><path d="M4 8h5M4 11h3"/></svg>Multi File Upload</button>
       <button class="add-btn" id="btn-captcha" onclick="addField('captcha')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1l1.5 2.5L12 4l-2 2 .5 2.5L8 7.5 5.5 8.5 6 6 4 4l2.5-.5L8 1z"/><path d="M3 10l1 4M13 10l-1 4M5 14h6"/></svg>Captcha</button>
       <button class="add-btn" onclick="addZone()"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="14" height="10" rx="1"/><path d="M1 6h14M1 10h14"/></svg>Conditional Zone</button>
+      <button class="add-btn" id="btn-service" onclick="addField('service')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="4" width="14" height="8" rx="2"/><path d="M4 8h4M4 11h6"/></svg>Select Service</button>
+      <button class="add-btn" id="btn-staff" onclick="addField('staff')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="3"/><path d="M2 14c0-3 2.5-5 6-5s6 2 6 5"/></svg>Select Staff</button>
+      <button class="add-btn" id="btn-location" onclick="addField('location')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1a5 5 0 0 1 5 5c0 3.5-5 9-5 9S3 9.5 3 6a5 5 0 0 1 5-5z"/><circle cx="8" cy="6" r="1.5"/></svg>Select Location</button>
     </div>
     <div id="req-toggle-section">
       <h2>Field Defaults</h2>
@@ -357,6 +357,9 @@ const storage={
   remove(k){try{localStorage.removeItem(k)}catch(e){delete memStore[k]}}
 };
 
+// Singleton types — only one of each allowed
+const SINGLETONS=['captcha','multifile','service','staff','location'];
+
 const defaults={
   text:     {label:'First Name',id:'FirstName',width:'half',required:true},
   tel:      {label:'Phone',id:'Phone',width:'half',required:true},
@@ -372,7 +375,10 @@ const defaults={
   divider:  {label:'New Form Section',id:'',width:'full',required:false},
   captcha:  {label:'Captcha',id:'Captcha',width:'full',required:false},
   date:     {label:'What date would you be available to start?',id:'ServiceDateRequested',width:'full',required:true},
-  resume:   {label:'Upload a Resume/CV/Document',id:'Resume',width:'full',required:false}
+  resume:   {label:'Upload a Resume/CV/Document',id:'Resume',width:'full',required:false},
+  service:  {label:'Select Service',id:'DesiredService',width:'full',required:true},
+  staff:    {label:'Select Staff',id:'DesiredStaff',width:'full',required:true},
+  location: {label:'Select Location',id:'DesiredLocation',width:'full',required:true}
 };
 
 function uid(){return Math.random().toString(36).slice(2,8);}
@@ -554,11 +560,11 @@ function duplicateChecked(){
 
 // ─── FIELD ACTIONS ───────────────────────────────────────────
 function addField(type){
-  if((type==='captcha'||type==='multifile')&&fields.some(f=>f.type===type))return;
+  if(SINGLETONS.includes(type)&&fields.some(f=>f.type===type))return;
   const d=defaults[type];
   const f={_id:uid(),type,...d,_dup:false,_zoneNum:null};
   if(d.opts) f.opts=[...d.opts];
-  if(type!=='captcha'&&type!=='divider'&&type!=='multifile'&&type!=='address'&&type!=='resume') f.required=reqDefaultOn;
+  if(type!=='captcha'&&type!=='divider'&&type!=='multifile'&&type!=='address'&&type!=='resume'&&type!=='service'&&type!=='staff'&&type!=='location') f.required=reqDefaultOn;
   fields.push(f);render();saveCurrentForm();
 }
 function removeField(fid){
@@ -636,6 +642,7 @@ function esc(s=''){return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;')
 function buildCard(f,inZone){
   const hasOpts=f.type==='checkbox'||f.type==='radio'||f.type==='select';
   const isState=f.type==='state',isCap=f.type==='captcha',isDiv=f.type==='divider',isMF=f.type==='multifile';
+  const isFixed=isCap;
   const isCondField=hasOpts&&condModeActive;
   let optsHtml='';
   if(isMF){
@@ -649,13 +656,13 @@ function buildCard(f,inZone){
   const checkboxWarning=(f.type==='checkbox'&&f.required&&(f.opts||[]).length>1)
     ?'<div style="background:#fef9c3;border:1px solid #eab308;border-radius:5px;padding:6px 9px;font-size:11px;color:#854d0e;display:flex;align-items:flex-start;gap:6px"><span>\u26a0\ufe0f</span><span>Having <strong>Required</strong> toggled on will require the user to select <strong>all</strong> options, not just one.</span></div>'
     :'';
-  const showDup=!isCap&&!isDiv&&!inZone;
+  const showDup=!isFixed&&!isDiv&&!inZone;
   const dupHtml=showDup?'<label class="dup-check-wrap" onclick="event.stopPropagation()"><input type="checkbox" '+(f._dup?'checked':'')+' onchange="toggleDupCheck(\''+f._id+'\',this.checked)"> Duplicate</label>':'';
   const isSelected=condSelectedFid===f._id;
   const condBtn=isCondField?'<button class="set-cond-btn'+(isSelected?' deselect':'')+'" onclick="setConditionField(\''+f._id+'\')">'+(isSelected?'Deselect':'Set as condition')+'</button>':'';
   const zoneTag=inZone?'<button class="btn-small" onclick="removeFromZone(\''+f._id+'\')" style="margin-top:4px;font-size:10px;color:#6366f1;border-color:#6366f1">\u2190 Remove from zone</button>':'';
   let body;
-  if(isCap) body='<div class="card-body"><span style="font-size:11px;color:#888">Fixed field \u2014 no editable properties.</span></div>';
+  if(isFixed) body='<div class="card-body"><span style="font-size:11px;color:#888">Fixed field \u2014 no editable properties.</span></div>';
   else if(isDiv) body='<div class="card-body"><div class="prop-row"><span class="prop-label">Text</span><input class="prop-input" value="'+esc(f.label)+'" oninput="updateField(\''+f._id+'\',\'label\',this.value)"></div></div>';
   else if(isMF) body='<div class="card-body"><div class="prop-row"><span class="prop-label">Width</span><select class="prop-input" onchange="updateField(\''+f._id+'\',\'width\',this.value)"><option value="full" selected>Full</option></select></div>'+optsHtml+'</div>';
   else body='<div class="card-body"><div class="prop-row"><span class="prop-label">Label</span><input class="prop-input" value="'+esc(f.label)+'" oninput="updateField(\''+f._id+'\',\'label\',this.value)"></div>'
@@ -739,9 +746,11 @@ function render(){
   });
 
   if(!condFabActiveZone) hideCondFab();
-  const capBtn=document.getElementById('btn-captcha'),mfBtn=document.getElementById('btn-multifile');
-  if(capBtn) capBtn.style.opacity=fields.some(f=>f.type==='captcha')?'0.4':'1';
-  if(mfBtn) mfBtn.style.opacity=fields.some(f=>f.type==='multifile')?'0.4':'1';
+  // Dim singleton buttons when already added
+  SINGLETONS.forEach(type=>{
+    const btn=document.getElementById('btn-'+type);
+    if(btn) btn.style.opacity=fields.some(f=>f.type===type)?'0.4':'1';
+  });
   updateDupFab();renderCode();checkDuplicateIds();
 }
 
@@ -787,6 +796,12 @@ function buildFieldCode(f){
     case 'captcha': return '\t\t\t<li class="captcha full">\n\t\t\t\t<div class="verify-cont">\n\t\t\t\t\t<span class="field-cap"></span>\n\t\t\t\t</div>\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label class="contactlabel captcha" for="Verification">\uD83D\uDEE1\uFE0F Please enter the above verification code:</label>\n\t\t\t\t\t<input required class="verification" type="text" autocomplete="off">\n\t\t\t\t</div>\n\t\t\t</li>';
     case 'date': return '\t\t\t<li class="'+w+' sel date">\n\t\t\t\t<div class="flex-spaced-between-auto-responsive" id="'+id+'" icoral="Coral.Controls.Form.Select" p-merge="{0}" e-ondatabinding="Coral.Dynamic.Bind">\n\t\t\t\t\t<div class="input-text full relative date">\n\t\t\t\t\t\t<a href="javascript:void(\'Select Date\')" tabindex="-1" aria-label="Select Next Date"></a>\n\t\t\t\t\t\t<svg data-use="calendar.24"></svg>\n\t\t\t\t\t\t<input type="date" placeholder=""'+req+'>\n\t\t\t\t\t\t<label class="hide" for="{ClientID:'+id+'">'+lbl+'</label>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</li>';
     case 'resume': return '\t\t\t<li class="'+w+'">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label for="{ClientID:'+id+'">'+lbl+'</label>\n\t\t\t\t\t<input id="'+id+'" accept="image/*,.pdf,.doc,.docx" type="file" placeholder="" p-savepath="/documents/resume/{ContactID}" icoral="Coral.Controls.Form.File" e-ondatabinding="Coral.Dynamic.Bind" p-remote="true">\n\t\t\t\t</div>\n\t\t\t</li>';
+    case 'service':
+      return '\t\t\t<li class="sel full">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label for="{ClientID:'+id+'">'+lbl+'</label>\n\t\t\t\t\t<select required="required" id="'+id+'" icoral="Coral.Controls.Form.Select" p-properties="{\n\t\t\t\t\t\tdatasource: {\n\t\t\t\t\t\t\tfrom: \'Systems.dbo.ServiceLines\',\n\t\t\t\t\t\t\twhere: [\n\t\t\t\t\t\t\t\t{ name: \'Active\', value: true }\n\t\t\t\t\t\t\t],\n\t\t\t\t\t\t\torderby: \'Seq\'\n\t\t\t\t\t\t},\n\t\t\t\t\t\thideonnoresults: \'Module\'\n\t\t\t\t\t}">\n\t\t\t\t\t\t<option value=""></option>\n\t\t\t\t\t\t<option value="{ServiceLine}" p-template="Item">{ServiceLine}</option>\n\t\t\t\t\t</select>\n\t\t\t\t\t<svg role="presentation" data-use="arrow_down.24"></svg>\n\t\t\t\t\t<div class="validation" for="{ClientID:'+id+'}" data-type="valueMissing">\n\t\t\t\t\t\tPlease make a selection.\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</li>';
+    case 'staff':
+      return '\t\t\t<li class="sel full">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label for="{ClientID:'+id+'">'+lbl+'</label>\n\t\t\t\t\t<select required="required" id="'+id+'" icoral="Coral.Controls.Form.Select" p-properties="{\n\t\t\t\t\t\tdatasource: {\n\t\t\t\t\t\t\tfrom: \'Systems.dbo.Staff_Profiles\',\n\t\t\t\t\t\t\talias: \'sp\',\n\t\t\t\t\t\t\twhere: [\n\t\t\t\t\t\t\t\t{ name: \'Active\', value: true }\n\t\t\t\t\t\t\t],\n\t\t\t\t\t\t\torderby: \'Seq\'\n\t\t\t\t\t\t}\n\t\t\t\t\t}">\n\t\t\t\t\t\t<option value=""></option>\n\t\t\t\t\t\t<option value="{FirstName} {LastName}" p-template="Item">{FirstName} {LastName}</option>\n\t\t\t\t\t</select>\n\t\t\t\t\t<svg role="presentation" data-use="arrow_down.24"></svg>\n\t\t\t\t\t<div class="validation" for="{ClientID:'+id+'}" data-type="valueMissing">\n\t\t\t\t\t\tPlease make a selection.\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</li>';
+    case 'location':
+      return '\t\t\t<li class="sel full">\n\t\t\t\t<div class="input-text">\n\t\t\t\t\t<label for="{ClientID:'+id+'">'+lbl+'</label>\n\t\t\t\t\t<select required="required" id="'+id+'" icoral="Coral.Controls.Form.Select" p-properties="{\n\t\t\t\t\t\tdatasource: {\n\t\t\t\t\t\t\tfrom: \'Systems.dbo.Locations\',\n\t\t\t\t\t\t\twhere: [\n\t\t\t\t\t\t\t\t{ name: \'Active\', value: true }\n\t\t\t\t\t\t\t],\n\t\t\t\t\t\t\torderby: \'LSeq\'\n\t\t\t\t\t\t}\n\t\t\t\t\t}">\n\t\t\t\t\t\t<option value=""></option>\n\t\t\t\t\t\t<option value="{Name}" p-template="Item">{Name}</option>\n\t\t\t\t\t</select>\n\t\t\t\t\t<svg role="presentation" data-use="arrow_down.24"></svg>\n\t\t\t\t\t<div class="validation" for="{ClientID:'+id+'}" data-type="valueMissing">\n\t\t\t\t\t\tPlease make a selection.\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</li>';
     default: return '';
   }
 }
@@ -820,7 +835,7 @@ function renderCode(){
         const cf=fields.find(f=>f._id===z.condition.fieldId);if(!cf)return;
         const fieldId=cf.id,val=z.condition.value,zClass='zone-'+z.num;
         if(cf.type==='radio'){
-          js+='\tdocument.querySelectorAll(\'input[type="radio"]\').forEach(function(r){\n\t\tif(r.name&&r.name.indexOf("'+fieldId+'")>-1){\n\t\t\tr.adadEventListener("change",function(){\n\t\t\t\tvar zone=document.querySelector(".'+zClass+'");if(!zone)return;\n\t\t\t\tif(this.value==="'+val+'")zone.classList.remove("hidden");else zone.classList.add("hidden");\n\t\t\t});\n\t\t}\n\t});\n';
+          js+='\tdocument.querySelectorAll(\'input[type="radio"]\').forEach(function(r){\n\t\tif(r.name&&r.name.indexOf("'+fieldId+'")>-1){\n\t\t\tr.addEventListener("change",function(){\n\t\t\t\tvar zone=document.querySelector(".'+zClass+'");if(!zone)return;\n\t\t\t\tif(this.value==="'+val+'")zone.classList.remove("hidden");else zone.classList.add("hidden");\n\t\t\t});\n\t\t}\n\t});\n';
         } else if(cf.type==='checkbox'){
           js+='\tdocument.querySelectorAll(\'input[type="checkbox"]\').forEach(function(cb){\n\t\tif(cb.name&&cb.name.indexOf("'+fieldId+'")>-1&&cb.value==="'+val+'"){\n\t\t\tcb.addEventListener("change",function(){\n\t\t\t\tvar zone=document.querySelector(".'+zClass+'");if(!zone)return;\n\t\t\t\tif(this.checked)zone.classList.remove("hidden");else zone.classList.add("hidden");\n\t\t\t});\n\t\t}\n\t});\n';
         } else if(cf.type==='select'){
@@ -837,11 +852,10 @@ function renderCode(){
 
   const mainFields=fields.filter(f=>!f._zoneNum).map(buildFieldCode).filter(Boolean).join('\n');
 
-  // Zones output as <ul class="zone zone-N flx-at-700-grd-sml hidden">
   const zoneDivs=zones.map(z=>{
     const zFields=z.fieldIds.map(fid=>fields.find(f=>f._id===fid)).filter(Boolean);
     const inner=zFields.map(buildFieldCode).filter(Boolean).join('\n');
-    return '\t\t\t<ul class="zone zone-'+z.num+' flx-at-700-grd-sml hidden full">\n'+inner+'\n\t\t\t</ul>';
+    return '\t\t\t<ul class="zone zone-'+z.num+' flx-at-700-grd-sml hidden">\n'+inner+'\n\t\t\t</ul>';
   }).join('\n');
 
   const fieldLines=mainFields+(zoneDivs?'\n'+zoneDivs:'');
@@ -882,6 +896,9 @@ function buildPreviewField(f){
     }
     case 'divider': return '<h2 class="form-divider" style="width:100%;margin:8px 0">'+lbl+'</h2>';
     case 'captcha': return '<li class="full"><div class="verify-cont"><span class="field-cap">Y9KWB</span></div><div class="input-text"><label>\uD83D\uDEE1\uFE0F Please enter the above verification code:</label><input type="text"></div></li>';
+    case 'service': return '<li class="sel full"><div class="input-text"><label>Select Service</label><select><option value="">— datasource: ServiceLines —</option></select><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 11L2 5h12z"/></svg></div></li>';
+    case 'staff': return '<li class="sel full"><div class="input-text"><label>Select Staff</label><select><option value="">— datasource: Staff_Profiles —</option></select><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 11L2 5h12z"/></svg></div></li>';
+    case 'location': return '<li class="sel full"><div class="input-text"><label>Select Location</label><select><option value="">— datasource: Locations —</option></select><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 11L2 5h12z"/></svg></div></li>';
     default: return '';
   }
 }
